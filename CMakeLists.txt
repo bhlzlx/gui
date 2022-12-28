@@ -9,7 +9,6 @@ add_library(gui STATIC)
 target_sources(gui 
 PRIVATE 
     core/events/event_dispatcher.cpp
-    core/events/i_event_dispatcher.cpp
     core/object.cpp
 )
 

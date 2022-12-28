@@ -6,5 +6,6 @@ namespace gui {
     class Touch;
     class InputEvent;
     class MouseButton;
+    class EventDispatcher;
 
 }
