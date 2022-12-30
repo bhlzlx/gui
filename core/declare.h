@@ -14,9 +14,12 @@ namespace gui {
         Middle,
         Invalid,
     };
+
     class Object;
     class Touch;
     class InputEvent;
     class EventDispatcher;
+    class Component;
+    class InputHandler;
 
 }
