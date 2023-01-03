@@ -8,6 +8,18 @@ namespace gui {
         T y;
     };
 
+    template<class T>
+    struct Size2D {
+        T width;
+        T height;
+    };
+
+    template<class T>
+    struct Rect2D {
+        Point2D     base;
+        Size2D      size;
+    };
+
     enum class MouseButton : int {
         Left,
         Right,

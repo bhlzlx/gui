@@ -1,6 +1,13 @@
 #pragma once
 #include <cstdint>
 #include <queue>
+#include <core/declare.h>
+
+/**
+ * @brief Anchor & Pivot
+ * anchor跟对象的位置有关系，也就是对象局部坐标的原点。一般anchor是pivot，如果不设置pivot为anchor
+ * pivot是变换的中心点
+ */
 
 namespace gui {
 
@@ -43,8 +50,14 @@ namespace gui {
 
     class Object {
     private:
-        ObjectUID       uuid_;
+        ObjectUID       uid_;
         uint32_t        refCount_;
+        Point2D<float>  position_;
+        Size2D<float>   size_;
+        Size2D<float>   rawSize_;
+        Point2D<float>  pivot_;
+        bool            pivotAsAnchor_;
+
     public:
         Object();
         void addRef() {
@@ -54,5 +67,7 @@ namespace gui {
             refCount_--;
         }
     };
+
+
 
 }
