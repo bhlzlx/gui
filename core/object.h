@@ -19,7 +19,6 @@
 
 namespace gui {
 
-
     class Object : public EventDispatcher {
     protected:
         ObjectUID       uid_;
@@ -27,8 +26,8 @@ namespace gui {
         Point2D<float>  position_;
         Size2D<float>   size_;
         Size2D<float>   rawSize_;
-        Point2D<float>  pivot_;
         Point2D<float>  scale_;
+        Point2D<float>  pivot_;
         float           alpha_;
         float           rotation_;
         uint8_t         pivotAsAnchor_:1;
@@ -63,15 +62,18 @@ namespace gui {
 
     };
 
-    class ObjectDeleteManager {
+    class ObjectDestroyManager {
     private:
+        std::vector<ObjectUID> destroyList_;
     public:
+        void add(ObjectUID uid);
+        void tick();
     };
-
 
     class ObjectTable {
         struct item_t {
             Object* obj;
+            ObjectUID uid;
         };
         static constexpr uint32_t BitSize = 11;
         static constexpr uint32_t RowSize = 1<<BitSize; // 2048
@@ -81,9 +83,8 @@ namespace gui {
         std::vector<item_t*>    rows_;
     public:
         ObjectUID allocateID(Object* obj);
-        void freeID(Object* obj);
+        Object* freeID(ObjectUID uid);
+        Object* query(ObjectUID uid);
     };
-
-
 
 }
