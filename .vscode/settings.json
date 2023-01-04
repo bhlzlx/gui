@@ -1,0 +1,14 @@
+{
+    "files.associations": {
+        "deque": "cpp",
+        "functional": "cpp",
+        "iterator": "cpp",
+        "list": "cpp",
+        "queue": "cpp",
+        "set": "cpp",
+        "utility": "cpp",
+        "vector": "cpp",
+        "xhash": "cpp",
+        "xtree": "cpp"
+    }
+}

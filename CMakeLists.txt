@@ -12,6 +12,7 @@ PRIVATE
     core/events/input_event.cpp
     core/input_handler.cpp
     core/object.cpp
+    core/layout/relation.cpp
 )
 
 target_link_libraries(gui

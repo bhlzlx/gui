@@ -2,6 +2,7 @@
 #include <cstdint>
 #include <queue>
 #include <core/declare.h>
+#include <core/events/event_dispatcher.h>
 
 /**
  * @brief Anchor & Pivot
@@ -9,63 +10,78 @@
  * pivot是变换的中心点
  */
 
+
+/**
+ * @brief UID 和 引用计数
+ * uid 可以用来给脚本使用
+ * 引用计数可以用来在C++层控制生命周期，C++层存储uid去访问会比较慢。
+ */
+
 namespace gui {
 
-    struct ObjectUID {
-        union {
-            struct {
-                uint32_t ver : 8;
-                uint32_t number : 24;
-            };
-            uint32_t uuid;
-        };
-    };
-    static constexpr ObjectUID InvalidUID = {0, 0};
 
-    static_assert(sizeof(ObjectUID) == sizeof(uint32_t), "");
-
-    class ObjectUIDManager {
-    private:
-        uint32_t                counter_;
-        std::queue<ObjectUID>   freeList_;
-    public:
-        void free(ObjectUID id) {
-            ++id.ver;
-            freeList_.push(id);
-        }
-        ObjectUID alloc() {
-            if(freeList_.size()) {
-                auto rst = freeList_.front();
-                freeList_.pop();
-                return rst;
-            } else {
-                if(counter_ & ~0xffffff) { // 超过最大限了
-                    return {}; // invalid id
-                } else {
-                    return ObjectUID{0, ++counter_}; // 从1开始计算
-                }
-            }
-        }
-    };
-
-    class Object {
-    private:
+    class Object : public EventDispatcher {
+    protected:
         ObjectUID       uid_;
         uint32_t        refCount_;
         Point2D<float>  position_;
         Size2D<float>   size_;
         Size2D<float>   rawSize_;
         Point2D<float>  pivot_;
-        bool            pivotAsAnchor_;
-
+        Point2D<float>  scale_;
+        float           alpha_;
+        float           rotation_;
+        uint8_t         pivotAsAnchor_:1;
+        uint8_t         visible_:1;
+        uint8_t         grayed_:1;
+        uint8_t         finalGrayed_:1;
+    private:
+        uint8_t         internalVisible_:1;
+        uint8_t         handlingController_:1;
+        uint8_t         draggable_:1;
+        uint8_t         focusable_:1;
+        uint8_t         pixelSnapping_:1;
+        SortingOrder    sortingOrder_;
+        Group*          group_;
+        float           sizePercentInGroup_;
+    private:
+        void setUID_(ObjectUID uid) {
+            uid_ = uid;
+        }
     public:
         Object();
-        void addRef() {
+        void retain() {
             refCount_++;
         }
-        void decRef() {
+        void releaes() {
             refCount_--;
         }
+
+        ObjectUID uid() const {
+            return uid_;
+        }
+
+    };
+
+    class ObjectDeleteManager {
+    private:
+    public:
+    };
+
+
+    class ObjectTable {
+        struct item_t {
+            Object* obj;
+        };
+        static constexpr uint32_t BitSize = 11;
+        static constexpr uint32_t RowSize = 1<<BitSize; // 2048
+        static constexpr uint32_t RowMask = (1<<BitSize) - 1; // 2048
+    private:
+        ObjectUIDManager        IDManager_;
+        std::vector<item_t*>    rows_;
+    public:
+        ObjectUID allocateID(Object* obj);
+        void freeID(Object* obj);
     };
 
 
