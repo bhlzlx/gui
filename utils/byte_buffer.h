@@ -24,6 +24,12 @@ namespace gui {
             , littleEndian_(false)
         {}
 
+        ~ByteBuffer() {
+            if(ownBuffer_ && ptr_) {
+                delete []ptr_;
+            }
+        }
+
         template<class T>
         inline T read() {
             static_assert(std::enable_if_t<std::is_pod_v<T>, bool>, "must be pod type!");
@@ -52,11 +58,11 @@ namespace gui {
             return val;
         }
 
+        // fgui序列化结构可能是存了几份block
         bool seekToBlock(int indexTablePos, int blockIndex);
-
-        std::string const& readRefString();
-        void readRefStringArray(std::vector<std::string>& vec);
-        void updateRefString(std::string const& str);
+        std::string const& readRefString(); // read string index on current location & query the string from `string table` at this index
+        void readRefStringArray(std::vector<std::string>& vec, uint32_t count); // similar as `readRefString`
+        void updateRefString(std::string const& str); // similar as `readRefString`
 
     };
 

@@ -12,9 +12,12 @@ PRIVATE
     core/events/input_event.cpp
     core/input_handler.cpp
     core/object.cpp
+    core/package.cpp
+    core/package_item.cpp
     core/gui_context.cpp
     core/layout/relation.cpp
     utils/byte_buffer.cpp
+    utils/toolset.cpp
 )
 
 target_link_libraries(gui

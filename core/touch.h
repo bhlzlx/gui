@@ -2,7 +2,7 @@
 #include <cstdint>
 #include <memory>
 #include <vector>
-#include "declare.h"
+#include <core/declare.h>
 
 namespace gui {
 

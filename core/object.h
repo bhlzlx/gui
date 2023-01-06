@@ -3,6 +3,7 @@
 #include <queue>
 #include <core/declare.h>
 #include <core/events/event_dispatcher.h>
+#include <utils/byte_buffer.h>
 
 /**
  * @brief Anchor & Pivot
@@ -81,6 +82,7 @@ namespace gui {
             return uid_;
         }
 
+protected:
         virtual void onInit();
         virtual void onSizeChanged();
         virtual void onScaleChanged();
@@ -92,6 +94,15 @@ namespace gui {
         virtual void onExit();
         virtual void onControllerChanged(Controller* controller);
 
+        virtual void setupBeforeAdd(ByteBuffer* buffer, int startPos);
+        virtual void setupAfterAdd(ByteBuffer* buffer, int startPos);
+
+        bool init();
+
+        void updateGear(int index);
+        void checkGearDisplay();
+        void setSizeDirectly(Size2D<float> const& size);
+    private:
     };
 
     class ObjectDestroyManager {
