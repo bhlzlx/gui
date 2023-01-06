@@ -13,13 +13,13 @@ namespace gui {
         auto objectTable = context->objectTable();
         for(auto iter = destroyList_.begin(); iter != destroyList_.end(); ++iter) {
             auto uid = *iter;
-            auto obj = objectTable->freeID(uid);
+            auto obj = objectTable->removeRegist(uid);
             // destroy or move to object pool
             // todo
         }
     }
 
-    ObjectUID ObjectTable::allocateID(Object* obj) {
+    ObjectUID ObjectTable::registObject(Object* obj) {
         auto id = IDManager_.alloc();
         auto row = id.number >> BitSize;
         auto index = id.number & RowMask;
@@ -34,10 +34,11 @@ namespace gui {
         return id;
     }
 
-    Object* ObjectTable::freeID(ObjectUID id) {
+    Object* ObjectTable::removeRegist(ObjectUID id) {
         auto row = id.number >> BitSize;
         auto index = id.number & RowMask;
         auto obj = rows_[row][index].obj;
+        assert(obj != nullptr);
         rows_[row][index].obj = nullptr;
         IDManager_.free(id);
         return obj;
@@ -54,6 +55,13 @@ namespace gui {
             return nullptr;
         }
         return nullptr;
+    }
+
+    void Object::release() {
+        if(refCount_ == 1) {
+            auto destroyManager = GetGUIContext()->destroyManager();
+            destroyManager->add(uid_);
+        }
     }
 
 }

@@ -14,6 +14,7 @@ PRIVATE
     core/object.cpp
     core/gui_context.cpp
     core/layout/relation.cpp
+    utils/byte_buffer.cpp
 )
 
 target_link_libraries(gui

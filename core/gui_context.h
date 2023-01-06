@@ -5,10 +5,10 @@ namespace gui {
 
     class GUIContext {
     private:
-        ObjectDestoryManager* destroyManager_;
+        ObjectDestroyManager* destroyManager_;
         ObjectTable* objectTable_;
     public:
-        ObjectDestoryManager* destroyManager();
+        ObjectDestroyManager* destroyManager();
         ObjectTable* objectTable();
     };
 

@@ -12,14 +12,17 @@ namespace gui {
 
     class RelationItem {
     private:
-        gui::VersionedUID                  targetUID_;
         Object*                         owner_;
+        Object*                         target_;
         std::vector<RelationInfo>       infos_;
         Point2D<float>                  targetPos_;
         Size2D<float>                   targetSize_;
     public:
         Object* getTarget() const {
-            return 
+            return target_;
+        }
+        Object* getOwner() const {
+            return owner_;
         }
     };
 

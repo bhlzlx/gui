@@ -66,6 +66,9 @@ namespace gui {
     private:
         std::vector<EventCallbackItem*>         callbackItems_;
     public:
+        EventDispatcher()
+            : callbackItems_ {}
+        {}
         void addEventListener(EventType event, EventCallback const& callback, EventTag tag = EventTag());
         void removeEventListener(EventType event, EventTag tag = EventTag());
         bool hasEventListener(EventType event, EventTag tag = EventTag()) const;

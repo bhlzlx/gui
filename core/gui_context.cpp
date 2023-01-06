@@ -8,7 +8,7 @@ namespace gui {
         return &UniqueGUIContext;
     }
 
-    ObjectDestoryManager* GUIContext::destroyManager() {
+    ObjectDestroyManager* GUIContext::destroyManager() {
         return destroyManager_;
     }
 

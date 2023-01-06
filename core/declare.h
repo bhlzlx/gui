@@ -19,8 +19,8 @@ namespace gui {
 
     template<class T>
     struct Rect2D {
-        Point2D     base;
-        Size2D      size;
+        Point2D<T>  base;
+        Size2D<T>   size;
     };
 
     enum class MouseButton : int {
@@ -41,9 +41,8 @@ namespace gui {
         LeftRight,
         CenterCenter,
         RightRight,
-        RightLeft,
         RightCenter,
-        RightRight,
+        RightLeft,
         Width,
         LeftExtLeft,
         LeftExtRight,
@@ -79,8 +78,9 @@ namespace gui {
     class InputEvent;
     class EventDispatcher;
     class Component;
+    class Controller;
     class InputHandler;
-    class ObjectDestoryManager;
+    class ObjectDestroyManager;
     class ObjectTable;
 
     using ObjectUID = comm::VersionedUID;

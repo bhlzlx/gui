@@ -48,17 +48,49 @@ namespace gui {
             uid_ = uid;
         }
     public:
-        Object();
+        Object()
+            : EventDispatcher()
+            , uid_()
+            , refCount_(1)
+            , position_{}
+            , size_{}
+            , rawSize_{}
+            , scale_{}
+            , pivot_{}
+            , alpha_(1.0f)
+            , rotation_(0.0f)
+            , pivotAsAnchor_(0)
+            , visible_(1)
+            , grayed_(0)
+            , finalGrayed_(0)
+            , internalVisible_(1)
+            , handlingController_(0)
+            , draggable_(0)
+            , focusable_(0)
+            , pixelSnapping_(0)
+            , sortingOrder_(SortingOrder::Ascent)
+            , group_(nullptr)
+            , sizePercentInGroup_(1.0f)
+        {}
         void retain() {
             refCount_++;
         }
-        void releaes() {
-            refCount_--;
-        }
+        void release();
 
         ObjectUID uid() const {
             return uid_;
         }
+
+        virtual void onInit();
+        virtual void onSizeChanged();
+        virtual void onScaleChanged();
+        virtual void onGrayedChanged();
+        virtual void onPositionChanged();
+        virtual void onAlphaChanged();
+        virtual void onVisibleChanged();
+        virtual void onEnter();
+        virtual void onExit();
+        virtual void onControllerChanged(Controller* controller);
 
     };
 
@@ -72,8 +104,8 @@ namespace gui {
 
     class ObjectTable {
         struct item_t {
-            Object* obj;
-            ObjectUID uid;
+            Object*         obj;
+            ObjectUID       uid;
         };
         static constexpr uint32_t BitSize = 11;
         static constexpr uint32_t RowSize = 1<<BitSize; // 2048
@@ -82,8 +114,8 @@ namespace gui {
         ObjectUIDManager        IDManager_;
         std::vector<item_t*>    rows_;
     public:
-        ObjectUID allocateID(Object* obj);
-        Object* freeID(ObjectUID uid);
+        ObjectUID registObject(Object* obj);
+        Object* removeRegist(ObjectUID uid);
         Object* query(ObjectUID uid);
     };
 

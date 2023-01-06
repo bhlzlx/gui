@@ -60,10 +60,11 @@ namespace gui {
                 }
             }
         }
+        return false;
     }
 
     bool EventDispatcher::dispatchEvent(EventType event, void* data, std::vector<uint8_t> const& buffer) {
-        EventContext ctx(event, this, data);
-        
+        EventContext ctx(event, this, data);   
+        return true;
     }
 }
