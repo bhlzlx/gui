@@ -1,8 +1,8 @@
-cmake_minimum_required(VERSION 3.18)
-
-project(gui)
-
-add_subdirectory(thirdpart/lwc)
+if(${CMAKE_CURRENT_SOURCE_DIR} STREQUAL ${CMAKE_SOURCE_DIR})
+    cmake_minimum_required(VERSION 3.18)
+    project(gui)
+    add_subdirectory(thirdpart/lwc)
+endif()
 
 add_library(gui STATIC)
 
@@ -28,4 +28,9 @@ PRIVATE
 target_include_directories(gui
 PRIVATE
     .
+)
+
+target_compile_definitions(gui
+PRIVATE
+    $<$<STREQUAL:${CMAKE_CXX_BYTE_ORDER},"BIG_ENDIAN">: BIG_ENDIAN=1>
 )

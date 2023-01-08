@@ -18,7 +18,7 @@ namespace gui {
     public:
         Package();
         ~Package();
-        void loadFromBuffer(ByteBuffer* byteBuffer);
+        bool loadFromBuffer(ByteBuffer* byteBuffer);
     };
 
     Package* PackageForID(std::string const& id);
