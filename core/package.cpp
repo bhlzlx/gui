@@ -20,6 +20,7 @@ namespace gui {
         int indexTablePos = buffer->pos();
         int count = 0;
         buffer->seekToBlock(indexTablePos, 4);
+        count = buffer->read<int>();
     }
 
 }

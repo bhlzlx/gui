@@ -138,9 +138,9 @@ namespace gui {
     class ObjectTable;
     class ByteBuffer;
 
+    class Texture;
+
     using ObjectUID = comm::VersionedUID;
     using ObjectUIDManager = comm::VersionedUIDManager;
 
     GUIContext* GetGUIContext();
-
-}
