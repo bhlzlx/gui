@@ -49,7 +49,7 @@ namespace gui {
         auto index = uid.number & RowMask;
         if(row < rows_.size()) {
             auto item = rows_[row][index];
-            if(item.uid.uuid == uid.uuid) {
+            if(item.uid.uuid() == uid.uuid()) {
                 return item.obj;
             }
             return nullptr;

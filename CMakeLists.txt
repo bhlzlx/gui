@@ -18,11 +18,13 @@ PRIVATE
     core/layout/relation.cpp
     utils/byte_buffer.cpp
     utils/toolset.cpp
+    utils/object_ptr.cpp
 )
 
 target_link_libraries(gui
 PRIVATE
     LightWeightCommon
+    UGI
 )
 
 target_include_directories(gui

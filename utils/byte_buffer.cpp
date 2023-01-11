@@ -2,7 +2,7 @@
 
 namespace gui {
 
-    constexpr std::string EmptyString;
+    static std::string EmptyString = "";
 
     std::string const& ByteBuffer::readRefString() {
         auto index = this->read<uint16_t>();
@@ -44,11 +44,10 @@ namespace gui {
                 position_ = indexTablePos + newPos;
                 return true;
             }
-        } else {
-            // restore the state
-            position_ = bak;
-            return false;
         }
+        // restore the state
+        position_ = bak;
+        return false;
     }
 
 }

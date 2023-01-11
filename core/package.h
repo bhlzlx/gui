@@ -2,6 +2,7 @@
 #include <core/declare.h>
 #include <string>
 #include <unordered_map>
+#include <vector>
 
 namespace gui {
 

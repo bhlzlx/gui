@@ -1,9 +1,10 @@
 #pragma once
 #include <cstdint>
 #include <queue>
-#include <id/versioned_uid.hpp>
+#include <id/versioned_uid.h>
 
-//#define GUI_BIG_ENDIAN 
+// ugi headers
+#include <ugi_declare.h>
 
 namespace gui {
 
@@ -32,7 +33,7 @@ namespace gui {
     struct Color4B {
         union {
             struct {
-            #if GUI_BIG_ENDIAN
+            #if BIG_ENDIAN
                 uint8_t r, g, b, a; // #rgba
             #else
                 uint8_t a, b, g, r; // #rgba
@@ -42,7 +43,11 @@ namespace gui {
         };
         Color4B(uint32_t ival) : val(ival) {}
         Color4B(uint8_t rr, uint8_t gg, uint8_t bb, uint8_t aa)
+        #if BIG_ENDIAN
             : r(rr), g(gg), b(bb), a(aa)
+        #else
+            : a(rr), b(gg), g(bb), r(aa)
+        #endif
         {}
         operator uint32_t () const {
             return val;
@@ -50,28 +55,33 @@ namespace gui {
     };
 
     struct Color3B {
-        #if GUI_BIG_ENDIAN
+        #if BIG_ENDIAN
             uint8_t r,g,b;
         #else
             uint8_t b,g,r;
         #endif
         Color3B(uint32_t ival) {
-            #if GUI_BIG_ENDIAN
+            #if BIG_ENDIAN
                 memcpy(this, (uint8_t*)&ival+1, 3);
             #else
                 memcpy(this, &ival, 3);
             #endif
         }
         Color3B(uint8_t rr, uint8_t gg, uint8_t bb)
+        #if BIG_ENDIAN
             :r(rr), g(gg), b(bb)
+        #else
+            :b(rr), g(gg), r(bb)
+        #endif
         {}
         operator uint32_t () const {
             uint32_t val = 0xffffffff;
-            #if GUI_BIG_ENDIAN
+            #if BIG_ENDIAN
                 memcpy((uint8_t*)&val+1, this, 3);
             #else
                 memcpy(&val,this,3);
             #endif
+            return val;
         }
     };
 
@@ -138,9 +148,12 @@ namespace gui {
     class ObjectTable;
     class ByteBuffer;
 
-    class Texture;
 
     using ObjectUID = comm::VersionedUID;
     using ObjectUIDManager = comm::VersionedUIDManager;
+    using Texture = ugi::Texture;
 
     GUIContext* GetGUIContext();
+
+
+}

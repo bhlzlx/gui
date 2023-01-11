@@ -37,16 +37,14 @@ namespace gui {
         }
 
         void skip(int offset) {
-            auto tmp = position_;
-            position_ += offset;
-            if(position_ > length_) {
-                position_ = length_;
+            if(offset + position_ < length_) {
+                position_ += offset;
             }
         }
 
         template<class T>
         inline T read() {
-            static_assert(std::enable_if_t<std::is_pod_v<T>, bool>, "must be pod type!");
+            static_assert(std::is_pod_v<T>, "must be pod type!");
             T val;
             #if LITTLE_ENDIAN // 这里需要注意一下大小端问题
             memcpy(&val, ptr_ + offset_ + position_, sizeof(T));

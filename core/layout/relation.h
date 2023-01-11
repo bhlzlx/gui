@@ -1,5 +1,6 @@
 #pragma once
 #include <core/declare.h>
+#include <utils/object_ptr.h>
 #include <vector>
 
 namespace gui {
@@ -12,8 +13,8 @@ namespace gui {
 
     class RelationItem {
     private:
-        Object*                         owner_;
-        Object*                         target_;
+        ObjectPtr                       owner_;
+        ObjectPtr                       target_;
         std::vector<RelationInfo>       infos_;
         Point2D<float>                  targetPos_;
         Size2D<float>                   targetSize_;
