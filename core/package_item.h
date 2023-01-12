@@ -50,11 +50,35 @@ namespace gui {
         std::string                     file_;
         int                             width_;
         int                             height_;
-        ByteBuffer*                     rawData_;
+        ByteBuffer*                     rawData_; // 有必要用指针？？？这个后续关注下！
 
         std::vector<std::string>*       branches_;
         std::vector<std::string>*       highResolution_;
 
+        // if is atlas
+        Texture*                        texture_;
+
+        // if is image
+        Rect2D<float>*                  scale9Grid_;
+        int                             tileGridIndex_;
+        bool                            scaledByTile_;
+        // HitTestData                  pixelHitTestData_;
+
+        // is is movie clip
+        float                           interval_;
+        float                           repeatDelay_;
+        bool                            swing_;
+        // Frames                       frames_; // 这个肯定是需要自己用Texture写一份了
+
+        // component
+        std::function<Component*()>     extensionCreator_;
+        bool                            translated_;
+
+        // bitmap font
+        //BitmapFont*                     bitmapFont_;
+
+        // skeleton
+        Point2D<float>                  skeletonAnchor_;
 
     public:
         PackageItem();
