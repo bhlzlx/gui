@@ -33,6 +33,11 @@ namespace gui {
         if(rawData_) {
             delete rawData_;
         }
-        if(anim)
+        if(branches_) {
+            delete branches_;
+        }
+        if(highResolution_) {
+            delete highResolution_;
+        }
     }
 }
