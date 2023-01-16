@@ -5,6 +5,15 @@ namespace gui {
 
 
     namespace toolset {
+
+        uint32_t findIndexStringArray(std::vector<std::string> const& array, std::string const& str) {
+            for(size_t i = 0; i<array.size(); ++i) {
+                if(array[i] == str) {
+                    return i;
+                }
+            }
+            return ~0;
+        }
     
         namespace {
             uint8_t charToHex(char ch){

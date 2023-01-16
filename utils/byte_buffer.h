@@ -1,5 +1,6 @@
 #pragma once
 #include <cstdint>
+#include <cstdlib>
 #include <type_traits>
 #include <string>
 #include <vector>
@@ -17,14 +18,28 @@ namespace gui {
         int                         length_;
         int                         position_;
         uint8_t                     ownBuffer_ : 1;
-        std::vector<std::string>    stringTable_;
+        std::vector<std::string>*   stringTable_;
     public:
-        ByteBuffer(uint8_t* ptr, int offset, int len, bool owner)
+        ByteBuffer(uint8_t* ptr, int offset, int len)
             : ptr_(ptr)
             , offset_(offset)
             , length_(len)
-            , ownBuffer_(1)
+            , position_(0)
+            , ownBuffer_(0)
         {}
+
+        ByteBuffer(int len)
+            : ptr_((uint8_t*)malloc(len))
+            , offset_(0)
+            , length_(ptr_?len:0)
+            , position_(0)
+            , ownBuffer_(1)
+        {
+        }
+
+        uint8_t* ptr() const {
+            return ptr_;
+        }
 
         ~ByteBuffer() {
             if(ownBuffer_ && ptr_) {
@@ -68,6 +83,16 @@ namespace gui {
                 position_ += len;
             }
             return val;
+        }
+
+        template<>
+        inline ByteBuffer* read<ByteBuffer*>() {
+            int count = read<int>();
+            ByteBuffer* buffer = new ByteBuffer(count);
+            buffer->stringTable_ = this->stringTable_;
+            buffer->version = this->version;
+            memcpy(buffer->ptr(), ptr() + this->position_, count);
+            return buffer;
         }
 
         // fgui序列化结构可能是存了几份block

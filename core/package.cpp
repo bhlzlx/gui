@@ -1,9 +1,33 @@
 #include "package.h"
-#include <io/archive.h>
+#include <cstdlib>
 #include <utils/byte_buffer.h>
+#include <utils/toolset.h>
+//
+#include <ugi/device.h>
+#include <ugi/render_context.h>
+#include <ugi/texture.h>
+#include <ugi/command_buffer.h>
+//
+#include <io/archive.h>
+#include <log/client_log.h>
+//
+#include <core/package_item.h>
 
 namespace gui {
 
+    namespace {
+        uint32_t White2x2Data[] = {
+            0xffffffff,0xffffffff,
+            0xffffffff,0xffffffff,
+        };
+    }
+
+    bool Package::CheckModuleInitialized() {
+        if(moduleInited_ && archive_) {
+            return true;
+        }
+        return false;
+    }
 
     bool Package::loadFromBuffer(ByteBuffer* buffer) {
         // magic number, version, bool, id, name,[20 bytes], indexTables
@@ -19,8 +43,163 @@ namespace gui {
         // index tables
         int indexTablePos = buffer->pos();
         int count = 0;
-        buffer->seekToBlock(indexTablePos, 4);
-        count = buffer->read<int>();
+        // read string table
+        buffer->seekToBlock(indexTablePos, 4); {
+            count = buffer->read<int>();
+            stringTable_.resize(count);
+            for(int i = 0; i<count; ++i) {
+                stringTable_[i] = buffer->read<std::string>();
+            } 
+        }
+        // read dependences
+        buffer->seekToBlock(indexTablePos, 0); {
+            count = buffer->read<int16_t>();
+            for(int i = 0; i<count; ++i) {
+                auto const& id = buffer->readRefString();
+                auto const& name = buffer->readRefString();
+                dependencies_.emplace_back(id, name);
+            }
+        }
+        // read branch info
+        bool branchIncluded = false;
+        if(v2) {
+            count = buffer->read<int16_t>();
+            if(count>0) {
+                buffer->readRefStringArray(branches_, count);
+                branchIndex_ = gui::toolset::findIndexStringArray(branches_, branch_);
+            }
+            branchIncluded = count > 0;
+        }
+        // read package items
+        PackageItem* item = nullptr;
+        auto slashPos = assetPath_.find('/');
+        std::string basePath;
+        if(slashPos != std::string::npos) {
+            basePath = std::string(assetPath_.begin(), assetPath_.begin()+slashPos+1);
+        }
+        count = buffer->read<int16_t>();
+        for(int i = 0; i<count; ++i) {
+            int nextPos = buffer->read<int>();
+            nextPos += buffer->pos();
+            item = new PackageItem();
+            item->owner_ = this;
+            item->type_ = (PackageItemType)buffer->read<uint8_t>();
+            item->id_ = buffer->readRefString();
+            item->name_ = buffer->readRefString();
+            buffer->skip(2); // ???? what's up!
+            item->file_ = buffer->readRefString();
+            buffer->read<bool>(); // no use!
+            item->width_ = buffer->read<int>();
+            item->height_ = buffer->read<int>();
+            //
+            switch(item->type_) {
+                case PackageItemType::Image: {
+                    item->objType_ = ObjectType::Image;
+                    ImageScaleOption scaleOption = (ImageScaleOption)buffer->read<uint8_t>();
+                    if(ImageScaleOption::Grid9 == scaleOption) {
+                        item->scale9Grid_ = new gui::Rect2D<float>();
+                        item->scale9Grid_->base.x = buffer->read<int>();
+                        item->scale9Grid_->base.y = buffer->read<int>();
+                        item->scale9Grid_->size.width = buffer->read<int>();
+                        item->scale9Grid_->size.height = buffer->read<int>();
+                    } else if(ImageScaleOption::Tile == scaleOption) {
+                        item->scaledByTile_ = true;
+                    }
+                    buffer->read<bool>(); // smoothing
+                    break;
+                }
+                case PackageItemType::MovieClip: {
+                    buffer->read<bool>(); // smoothing
+                    item->objType_ = ObjectType::MovieClip;
+                    item->rawData_ = buffer->read<ByteBuffer*>();  // a slice of byte buffer
+                    break;
+                }
+                case PackageItemType::Font: {
+                    item->rawData_ = buffer->read<ByteBuffer*>();
+                    break;
+                }
+                case PackageItemType::Component: {
+                    uint32_t ext = buffer->read<uint8_t>();
+                    if(ext) {
+                        item->objType_ = (ObjectType)ext;
+                    } else {
+                        item->objType_ = ObjectType::Component;
+                    }
+                    item->rawData_ = buffer->read<ByteBuffer*>();
+                    // todo: UIObjectFactory::Re...
+                    break;
+                }
+                case PackageItemType::Atlas:
+                case PackageItemType::Sound:
+                case PackageItemType::Misc: {
+                    item->file_ = assetPath_ + "_" + item->file_;
+                    break;
+                }
+            }
+        }
     }
 
+    Package* Package::AddPackage(std::string const& assetPath) {
+        if(!CheckModuleInitialized()) {
+            assert("not initialized yet!");
+            return nullptr;
+        }
+        auto iter = packageInstByID.find(assetPath);
+        if(iter != packageInstByID.end()) {
+            return iter->second;
+        }
+        auto file = archive_->openIStream(assetPath + ".fui", {comm::ReadFlag::binary});
+        if(!file) {
+            COMMLOGE("GUI: package not found [%s]", assetPath.c_str());
+            return nullptr;
+        }
+        ByteBuffer buff(file->size());
+        file->read(buff.ptr(), file->size());
+        // ready to read, create a package object
+        Package* package = new Package();
+        package->assetPath_ = assetPath;
+        auto rst = package->loadFromBuffer(&buff);
+        if(!rst) {
+            delete package;
+            return nullptr;
+        }
+        packageInstByID[package->id_] = package;
+        packageInstByID[assetPath] = package;
+        packageInstByName[package->name_] = package;
+        packageList_.push_back(package);
+        return package;
+    }
+
+    void Package::InitPackageModule(comm::IArchive* archive) {
+        if(!archive) {
+            return ;
+        }
+        archive_ = archive;
+        auto renderContext = GetRenderContext();
+        auto device = renderContext->device();
+        // init empty textur
+        ugi::tex_desc_t whiteTexDesc = {
+            .type = ugi::TextureType::Texture2D,
+            .format = ugi::UGIFormat::RGBA8888_UNORM,
+            .height = 2,
+            .width = 2,
+            .layerCount = 1,
+            .mipmapLevel = 1,
+        };
+        ugi::image_region_t region = {
+            .mipLevel = 0,
+            .arrayCount = 1,
+            .arrayIndex = 0,
+            .extent = {2, 2, 1},
+            .offset = {0, 0, 0},
+        };
+        emptyTexture_ = device->createTexture(whiteTexDesc);
+        uint64_t offset = 0;
+        if(emptyTexture_) {
+            emptyTexture_->updateRegions(device, &region, 1, (uint8_t const*)White2x2Data, sizeof(White2x2Data), &offset, renderContext->asyncLoadManager(),[](void* res, ugi::CommandBuffer*) {
+                // async load complete!
+                // do nothing
+            });
+        }
+    }
 }

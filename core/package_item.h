@@ -41,6 +41,7 @@ namespace gui {
     };
     
     class PackageItem {
+        friend class Package;
     private:
         Package*                        owner_;
         PackageItemType                 type_;

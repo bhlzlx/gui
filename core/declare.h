@@ -133,6 +133,11 @@ namespace gui {
         Y
     };
 
+    enum class ImageScaleOption {
+        Grid9,
+        Tile,
+    };
+
     class GUIContext;
     class Object;
     class Package;
@@ -155,5 +160,6 @@ namespace gui {
 
     GUIContext* GetGUIContext();
 
+    ugi::StandardRenderContext* GetRenderContext();
 
 }

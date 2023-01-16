@@ -6,16 +6,16 @@ namespace gui {
 
     std::string const& ByteBuffer::readRefString() {
         auto index = this->read<uint16_t>();
-        if(stringTable_.size() > index) {
-            return stringTable_[index];
+        if(stringTable_->size() > index) {
+            return stringTable_->at(index);
         }
         return EmptyString;
     }
 
     void ByteBuffer::updateRefString(std::string const& str) {
         auto index = this->read<uint16_t>();
-        if(stringTable_.size() > index) {
-            stringTable_[index] = str;
+        if(stringTable_->size() > index) {
+            stringTable_->at(index) = str;
         }
     }
 

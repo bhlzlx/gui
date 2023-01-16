@@ -3,10 +3,16 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+//
+#include <lightweight_comm.h>
 
 namespace gui {
 
     class Package {
+        struct dependence_t {
+            std::string id;
+            std::string name;
+        };
     private:
         std::string                                                 id_;
         std::string                                                 name_;
@@ -18,7 +24,7 @@ namespace gui {
         // std::unordered_map<std::string, 
         std::string                                                 customID_;
         std::vector<std::string>                                    stringTable_;
-        std::vector<std::unordered_map<std::string, std::string>>   dependencies_;
+        std::vector<dependence_t>                                   dependencies_;
         std::vector<std::string>                                    branches_;
         int                                                         branchIndex_;
         // static data
@@ -28,10 +34,17 @@ namespace gui {
         static std::unordered_map<std::string, std::string>         vars_;
         static std::string                                          branch_;
         static Texture*                                             emptyTexture_;
+        static uint32_t                                             moduleInited_;
+        static comm::IArchive*                                      archive_;
     public:
         Package();
         ~Package();
         bool loadFromBuffer(ByteBuffer* byteBuffer);
+    private:
+        static bool CheckModuleInitialized();
+    public:
+        static Package* AddPackage(std::string const& assetPath);
+        static void InitPackageModule(comm::IArchive* archive);
     };
 
     Package* PackageForID(std::string const& id);
