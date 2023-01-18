@@ -10,7 +10,7 @@ namespace gui {
         Color4B hexToColor(const char* str);
 
         template<class T>
-        Rect2D<T> intersection( const Rect2D<T>& a, const Rect2D<T>& b);
+        Rect<T> intersection( const Rect<T>& a, const Rect<T>& b);
 
         uint32_t findIndexStringArray(std::vector<std::string> const& array, std::string const& str);
 

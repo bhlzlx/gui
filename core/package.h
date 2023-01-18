@@ -21,7 +21,7 @@ namespace gui {
 
         std::unordered_map<std::string, PackageItem*>               itemsByID_;
         std::unordered_map<std::string, PackageItem*>               itemsByName_;
-        // std::unordered_map<std::string, 
+        std::unordered_map<std::string, AtlasSprite*>               sprites_; 
         std::string                                                 customID_;
         std::vector<std::string>                                    stringTable_;
         std::vector<dependence_t>                                   dependencies_;

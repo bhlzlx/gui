@@ -60,7 +60,7 @@ namespace gui {
         Texture*                        texture_;
 
         // if is image
-        Rect2D<float>*                  scale9Grid_;
+        Rect<float>*                  scale9Grid_;
         int                             tileGridIndex_;
         bool                            scaledByTile_;
         // HitTestData                  pixelHitTestData_;

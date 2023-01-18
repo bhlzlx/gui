@@ -2,6 +2,7 @@
 #include <cstdint>
 #include <queue>
 #include <id/versioned_uid.h>
+#include <glm/glm.hpp>
 
 // ugi headers
 #include <ugi_declare.h>
@@ -9,10 +10,7 @@
 namespace gui {
 
     template<class T>
-    struct Point2D {
-        T x;
-        T y;
-    };
+    using Point2D = glm::vec<2, T>;
 
     template<class T>
     struct Size2D {
@@ -21,7 +19,7 @@ namespace gui {
     };
 
     template<class T>
-    struct Rect2D {
+    struct Rect {
         Point2D<T>  base;
         Size2D<T>   size;
         T left() { return base.x; };
@@ -153,10 +151,18 @@ namespace gui {
     class ObjectTable;
     class ByteBuffer;
 
+    struct AtlasSprite {
+        PackageItem*    item;
+        Rect<float>     rect;
+        glm::vec2       origSize;
+        glm::vec2       offset;
+        bool            rotated;
+    };
 
     using ObjectUID = comm::VersionedUID;
     using ObjectUIDManager = comm::VersionedUIDManager;
     using Texture = ugi::Texture;
+    using csref = std::string const&;
 
     GUIContext* GetGUIContext();
 

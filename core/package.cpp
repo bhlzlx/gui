@@ -97,7 +97,7 @@ namespace gui {
                     item->objType_ = ObjectType::Image;
                     ImageScaleOption scaleOption = (ImageScaleOption)buffer->read<uint8_t>();
                     if(ImageScaleOption::Grid9 == scaleOption) {
-                        item->scale9Grid_ = new gui::Rect2D<float>();
+                        item->scale9Grid_ = new gui::Rect<float>();
                         item->scale9Grid_->base.x = buffer->read<int>();
                         item->scale9Grid_->base.y = buffer->read<int>();
                         item->scale9Grid_->size.width = buffer->read<int>();
@@ -135,6 +135,83 @@ namespace gui {
                     item->file_ = assetPath_ + "_" + item->file_;
                     break;
                 }
+                case PackageItemType::DragonBones:
+                case PackageItemType::Spine: {
+                    item->file_ = basePath + item->file_;
+                    item->skeletonAnchor_.x = buffer->read<float>();
+                    item->skeletonAnchor_.y = buffer->read<float>();
+                    break;
+                }
+                default: {
+                    break;
+                }
+            }
+            //
+            if(v2) {
+                std::string str = buffer->readRefString();
+                if(!str.empty()) {
+                    item->name_ = str + "/" + item->name_;
+                }
+                auto branchCount = buffer->read<uint8_t>();
+                if(branchCount) {
+                    if(branchIncluded) {
+                        item->branches_ = new std::vector<std::string>();
+                        buffer->readRefStringArray(*item->branches_, branchCount);
+                    } else {
+                        auto const& key = buffer->readRefString();
+                        itemsByID_[key] = item;
+                    }
+                }
+                auto highResCount = buffer->read<uint8_t>();
+                if(highResCount) {
+                    item->highResolution_ = new std::vector<std::string>();
+                    buffer->readRefStringArray(*item->highResolution_, highResCount);
+                }
+            }
+            packageItems_.push_back(item);
+            itemsByID_[item->id_] = item;
+            if(!item->name_.empty()) {
+                itemsByName_[item->name_] = item;
+            }
+            buffer->setPos(nextPos);
+        }
+        // read spirites
+        buffer->seekToBlock(indexTablePos, 2);
+        count = buffer->read<int16_t>();
+        for(int i = 0; i<count; ++i) {
+            int nextPos = buffer->read<uint16_t>();
+            nextPos += buffer->pos();
+            auto const& itemID = buffer->read<csref>();
+            item = itemsByID_[buffer->read<csref>()];
+            //
+            AtlasSprite* sprite = new AtlasSprite();
+            sprite->item = item;
+            sprite->rect.base.x = buffer->read<int>();
+            sprite->rect.base.y = buffer->read<int>();
+            sprite->rect.size.width = buffer->read<int>();
+            sprite->rect.size.height = buffer->read<int>();
+            sprite->rotated = buffer->read<bool>();
+            if(v2 && buffer->read<bool>()) {
+                sprite->offset.x = buffer->read<int>();
+                sprite->offset.y = buffer->read<int>();
+                sprite->origSize.x = buffer->read<int>();
+                sprite->origSize.y = buffer->read<int>();
+            } else {
+                sprite->offset = {};
+                sprite->origSize = sprite->rect.size;
+            }
+            sprites_[itemID] = sprite;
+            buffer->setPos(nextPos);
+        }
+        // 
+        if(buffer->seekToBlock(indexTablePos, 3)) {
+            count = buffer->read<int16_t>();
+            for(int i = 0; i<count; ++i) {
+                int nextPos = buffer->read<int>();
+                nextPos += buffer->pos();
+                //
+                auto const& id = buffer->read<csref>();
+                auto iter = itemsByID_.find(id);
             }
         }
     }

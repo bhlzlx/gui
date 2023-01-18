@@ -53,18 +53,18 @@ namespace gui {
 
 
         template<class T>
-        Rect2D<T> intersection( const Rect2D<T>& a, const Rect2D<T>& b) {
+        Rect<T> intersection( const Rect<T>& a, const Rect<T>& b) {
             if(0 == a.size.height || 0 == a.size.width || 0 == b.size.width || 0 == b.size.height) {
-                return Rect2D<T>{};
+                return Rect<T>{};
             }
             T left = a.left()> b.left() ? a.left() : b.left();
             T right = a.right() < b.right() ? a.right() : b.right();
             T top = a.top() > b.top() ? a.top() : b.top();
             T bottom = a.bottom() > b.bottom() ? a.bottom() : b.bottom();
             if(left > right || top > bottom) {
-                return Rect2D<T>{};
+                return Rect<T>{};
             }
-            return Rect2D<T>{{left, top}, {right-left, bottom-top}};
+            return Rect<T>{{left, top}, {right-left, bottom-top}};
         }
 
     }

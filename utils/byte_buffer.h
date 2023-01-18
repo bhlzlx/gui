@@ -51,6 +51,10 @@ namespace gui {
             return position_;
         }
 
+        void setPos(int pos) {
+            position_ = pos;
+        }
+
         void skip(int offset) {
             if(offset + position_ < length_) {
                 position_ += offset;
@@ -93,6 +97,16 @@ namespace gui {
             buffer->version = this->version;
             memcpy(buffer->ptr(), ptr() + this->position_, count);
             return buffer;
+        }
+
+        inline static std::string EmptyString = "";
+        template<>
+        inline std::string const& read<std::string const&>() {
+            auto index = this->read<uint16_t>();
+            if(stringTable_->size() > index) {
+                return stringTable_->at(index);
+            }
+            return EmptyString;
         }
 
         // fgui序列化结构可能是存了几份block
