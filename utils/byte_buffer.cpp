@@ -4,13 +4,13 @@ namespace gui {
 
     static std::string EmptyString = "";
 
-    std::string const& ByteBuffer::readRefString() {
-        auto index = this->read<uint16_t>();
-        if(stringTable_->size() > index) {
-            return stringTable_->at(index);
-        }
-        return EmptyString;
-    }
+    // std::string const& ByteBuffer::readRefString() {
+    //     auto index = this->read<uint16_t>();
+    //     if(stringTable_->size() > index) {
+    //         return stringTable_->at(index);
+    //     }
+    //     return EmptyString;
+    // }
 
     void ByteBuffer::updateRefString(std::string const& str) {
         auto index = this->read<uint16_t>();
@@ -21,7 +21,7 @@ namespace gui {
 
     void ByteBuffer::readRefStringArray(std::vector<std::string>& vec, uint32_t count) {
         for(uint32_t i = 0; i<count; ++i) {
-            vec.push_back(readRefString());
+            vec.push_back(read<csref>());
         }
     }
 

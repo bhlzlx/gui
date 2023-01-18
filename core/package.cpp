@@ -55,8 +55,8 @@ namespace gui {
         buffer->seekToBlock(indexTablePos, 0); {
             count = buffer->read<int16_t>();
             for(int i = 0; i<count; ++i) {
-                auto const& id = buffer->readRefString();
-                auto const& name = buffer->readRefString();
+                auto const& id = buffer->read<csref>();
+                auto const& name = buffer->read<csref>();
                 dependencies_.emplace_back(id, name);
             }
         }
@@ -84,10 +84,10 @@ namespace gui {
             item = new PackageItem();
             item->owner_ = this;
             item->type_ = (PackageItemType)buffer->read<uint8_t>();
-            item->id_ = buffer->readRefString();
-            item->name_ = buffer->readRefString();
+            item->id_ = buffer->read<csref>();
+            item->name_ = buffer->read<csref>();
             buffer->skip(2); // ???? what's up!
-            item->file_ = buffer->readRefString();
+            item->file_ = buffer->read<csref>();
             buffer->read<bool>(); // no use!
             item->width_ = buffer->read<int>();
             item->height_ = buffer->read<int>();
@@ -148,7 +148,7 @@ namespace gui {
             }
             //
             if(v2) {
-                std::string str = buffer->readRefString();
+                std::string str = buffer->read<csref>();
                 if(!str.empty()) {
                     item->name_ = str + "/" + item->name_;
                 }
@@ -158,7 +158,7 @@ namespace gui {
                         item->branches_ = new std::vector<std::string>();
                         buffer->readRefStringArray(*item->branches_, branchCount);
                     } else {
-                        auto const& key = buffer->readRefString();
+                        auto const& key = buffer->read<csref>();
                         itemsByID_[key] = item;
                     }
                 }

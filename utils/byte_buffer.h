@@ -100,8 +100,9 @@ namespace gui {
         }
 
         inline static std::string EmptyString = "";
+
         template<>
-        inline std::string const& read<std::string const&>() {
+        inline csref read<csref>() {
             auto index = this->read<uint16_t>();
             if(stringTable_->size() > index) {
                 return stringTable_->at(index);
@@ -111,7 +112,7 @@ namespace gui {
 
         // fgui序列化结构可能是存了几份block
         bool seekToBlock(int indexTablePos, int blockIndex);
-        std::string const& readRefString(); // read string index on current location & query the string from `string table` at this index
+        // std::string const& readRefString(); // read string index on current location & query the string from `string table` at this index
         void readRefStringArray(std::vector<std::string>& vec, uint32_t count); // similar as `readRefString`
         void updateRefString(std::string const& str); // similar as `readRefString`
 

@@ -10,12 +10,15 @@
 namespace gui {
 
     template<class T>
-    using Point2D = glm::vec<2, T>;
+    using Point2D = glm::vec<2, T, glm::defaultp>;
 
     template<class T>
     struct Size2D {
         T width;
         T height;
+        operator glm::vec<2,T,glm::defaultp>() const {
+            return glm::vec<2,T,glm::defaultp>(width, height);
+        }
     };
 
     template<class T>
