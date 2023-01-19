@@ -1,5 +1,6 @@
 #pragma once
 #include <core/declare.h>
+#include <core/hit_test.h>
 #include <string>
 
 namespace gui {
@@ -60,10 +61,10 @@ namespace gui {
         Texture*                        texture_;
 
         // if is image
-        Rect<float>*                  scale9Grid_;
+        Rect<float>*                    scale9Grid_;
         int                             tileGridIndex_;
         bool                            scaledByTile_;
-        // HitTestData                  pixelHitTestData_;
+        PixelHitTestData*               pixelHitTestData_;
 
         // is is movie clip
         float                           interval_;
@@ -83,6 +84,7 @@ namespace gui {
 
     public:
         PackageItem();
+        ~PackageItem();
     };
 
 }

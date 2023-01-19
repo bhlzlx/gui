@@ -44,7 +44,7 @@ namespace gui {
         int indexTablePos = buffer->pos();
         int count = 0;
         // read string table
-        buffer->seekToBlock(indexTablePos, 4); {
+        buffer->seekToBlock(indexTablePos, PackageBlockIndex::StringTable); {
             count = buffer->read<int>();
             stringTable_.resize(count);
             for(int i = 0; i<count; ++i) {
@@ -52,12 +52,12 @@ namespace gui {
             } 
         }
         // read dependences
-        buffer->seekToBlock(indexTablePos, 0); {
+        buffer->seekToBlock(indexTablePos, PackageBlockIndex::Dependences); {
             count = buffer->read<int16_t>();
             for(int i = 0; i<count; ++i) {
                 auto const& id = buffer->read<csref>();
                 auto const& name = buffer->read<csref>();
-                dependencies_.emplace_back(id, name);
+                dependencies_.push_back({id, name});
             }
         }
         // read branch info
@@ -71,6 +71,7 @@ namespace gui {
             branchIncluded = count > 0;
         }
         // read package items
+        buffer->seekToBlock(indexTablePos, PackageBlockIndex::Items);
         PackageItem* item = nullptr;
         auto slashPos = assetPath_.find('/');
         std::string basePath;
@@ -176,7 +177,7 @@ namespace gui {
             buffer->setPos(nextPos);
         }
         // read spirites
-        buffer->seekToBlock(indexTablePos, 2);
+        buffer->seekToBlock(indexTablePos, PackageBlockIndex::Sprites);
         count = buffer->read<int16_t>();
         for(int i = 0; i<count; ++i) {
             int nextPos = buffer->read<uint16_t>();
@@ -203,8 +204,8 @@ namespace gui {
             sprites_[itemID] = sprite;
             buffer->setPos(nextPos);
         }
-        // 
-        if(buffer->seekToBlock(indexTablePos, 3)) {
+        // pixel hit test data
+        if(buffer->seekToBlock(indexTablePos, PackageBlockIndex::HitTestData)) {
             count = buffer->read<int16_t>();
             for(int i = 0; i<count; ++i) {
                 int nextPos = buffer->read<int>();
@@ -212,8 +213,17 @@ namespace gui {
                 //
                 auto const& id = buffer->read<csref>();
                 auto iter = itemsByID_.find(id);
+                if(iter != itemsByID_.end()) {
+                    item = iter->second;
+                    if(item->type_ == PackageItemType::Image) {
+                        item->pixelHitTestData_ = new PixelHitTestData();
+                        item->pixelHitTestData_->load(buffer);
+                    }
+                }
+                buffer->setPos(nextPos);
             }
         }
+        return true;
     }
 
     Package* Package::AddPackage(std::string const& assetPath) {
@@ -258,17 +268,18 @@ namespace gui {
         ugi::tex_desc_t whiteTexDesc = {
             .type = ugi::TextureType::Texture2D,
             .format = ugi::UGIFormat::RGBA8888_UNORM,
-            .height = 2,
-            .width = 2,
-            .layerCount = 1,
             .mipmapLevel = 1,
+            .layerCount = 1,
+            .width = 2,
+            .height = 2,
+            .depth = 1,
         };
         ugi::image_region_t region = {
             .mipLevel = 0,
-            .arrayCount = 1,
             .arrayIndex = 0,
-            .extent = {2, 2, 1},
+            .arrayCount = 1,
             .offset = {0, 0, 0},
+            .extent = {2, 2, 1},
         };
         emptyTexture_ = device->createTexture(whiteTexDesc);
         uint64_t offset = 0;

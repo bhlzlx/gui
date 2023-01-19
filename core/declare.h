@@ -1,6 +1,7 @@
 #pragma once
 #include <cstdint>
 #include <queue>
+#include <string>
 #include <id/versioned_uid.h>
 #include <glm/glm.hpp>
 
@@ -160,6 +161,14 @@ namespace gui {
         glm::vec2       origSize;
         glm::vec2       offset;
         bool            rotated;
+    };
+
+    enum class PackageBlockIndex {
+        Dependences = 0,
+        Items = 1,
+        Sprites = 2,
+        HitTestData = 3,
+        StringTable = 4,
     };
 
     using ObjectUID = comm::VersionedUID;

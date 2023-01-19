@@ -25,19 +25,19 @@ namespace gui {
         }
     }
 
-    bool ByteBuffer::seekToBlock(int indexTablePos, int blockIndex) {
+    bool ByteBuffer::seekToBlock(int indexTablePos, PackageBlockIndex blockIndex) {
         auto bak = position_;
         position_ = indexTablePos;
         auto blockCount = read<uint8_t>();
-        if(blockIndex<blockCount) {
+        if((int)blockIndex<blockCount) {
             bool indexIsInt16 = (read<uint8_t>() == 1); // index is int16_t or int32_t
             int newPos = 0;
             if(indexIsInt16) {
                 // read specified block index value
-                position_ += sizeof(int16_t) * blockIndex; // locate the position that stores the block's offset
+                position_ += sizeof(int16_t) * (int)blockIndex; // locate the position that stores the block's offset
                 newPos = read<int16_t>();
             } else {
-                position_ += sizeof(int32_t) * blockIndex;
+                position_ += sizeof(int32_t) * (int)blockIndex;
                 newPos = read<int32_t>();
             }
             if(newPos>0) {

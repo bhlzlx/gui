@@ -16,6 +16,8 @@ PRIVATE
     core/package_item.cpp
     core/gui_context.cpp
     core/layout/relation.cpp
+    core/hit_test.cpp
+    core/component.cpp
     utils/byte_buffer.cpp
     utils/toolset.cpp
     utils/object_ptr.cpp

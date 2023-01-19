@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include <compiler_def.h>
+#include <core/declare.h>
 
 namespace gui {
 
@@ -111,7 +112,7 @@ namespace gui {
         }
 
         // fgui序列化结构可能是存了几份block
-        bool seekToBlock(int indexTablePos, int blockIndex);
+        bool seekToBlock(int indexTablePos, PackageBlockIndex index);
         // std::string const& readRefString(); // read string index on current location & query the string from `string table` at this index
         void readRefStringArray(std::vector<std::string>& vec, uint32_t count); // similar as `readRefString`
         void updateRefString(std::string const& str); // similar as `readRefString`
