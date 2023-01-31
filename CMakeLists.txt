@@ -16,8 +16,10 @@ PRIVATE
     core/package_item.cpp
     core/gui_context.cpp
     core/layout/relation.cpp
+    core/layout/transition.cpp
     core/hit_test.cpp
     core/component.cpp
+    core/layout/InterpolatablePath.cpp
     utils/byte_buffer.cpp
     utils/toolset.cpp
     utils/object_ptr.cpp
