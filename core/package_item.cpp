@@ -1,4 +1,5 @@
 #include "package_item.h"
+#include <core/declare.h>
 
 
 namespace gui {

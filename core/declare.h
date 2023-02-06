@@ -154,6 +154,7 @@ namespace gui {
     class ObjectDestroyManager;
     class ObjectTable;
     class ByteBuffer;
+    class InterpoPath;
 
     struct AtlasSprite {
         PackageItem*    item;
@@ -161,6 +162,9 @@ namespace gui {
         glm::vec2       origSize;
         glm::vec2       offset;
         bool            rotated;
+    };
+
+    struct Userdata {
     };
 
     enum class PackageBlockIndex {

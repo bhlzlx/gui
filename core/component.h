@@ -8,7 +8,7 @@ namespace gui {
     protected:
         std::vector<Object*>        children_;
         std::vector<Controller*>    controllers_;
-        std::vector<
+        // std::vector<Transition>
     public: 
     };
 

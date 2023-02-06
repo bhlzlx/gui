@@ -12,8 +12,7 @@ namespace gui {
 
     struct PathPoint {
         glm::vec3   pos;
-        glm::vec3   control0;
-        glm::vec3   control1;
+        glm::vec3   controlPt[2];
         CurveType   curveType;
         //
         PathPoint(glm::vec3 const& pos);
@@ -24,21 +23,24 @@ namespace gui {
 
     class InterpoPath {
     public:
-        struct Segment {
+        struct segment_t {
             CurveType   type;
             float       length;
             int         ptStart;
             int         ptCount;
         };
     private:
-        void createSplineSegment();
-        glm::vec3 onCRSplineCurve(int start, int count, float t);
-        glm::vec3 onBezierCurve(int start, int count, float t);
+        std::vector<segment_t>      segments_;
+        std::vector<glm::vec3>      points_;
+        float                       fullLength_;
+        //
+        glm::vec3 onCRSplineCurve(int start, int count, float t) const;
+        glm::vec3 onBezierCurve(int start, int count, float t) const;
     public:
         InterpoPath();
         void create(PathPoint const* points, int count);
         void clear();
-        glm::vec3 pointAt() const;
+        glm::vec3 pointAt(float t) const;
 
         float length() const;
         int segmentCount() const;

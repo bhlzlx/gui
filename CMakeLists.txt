@@ -8,6 +8,11 @@ add_library(gui STATIC)
 
 target_sources(gui 
 PRIVATE 
+    core/data_types/relation.cpp
+    core/data_types/transition.cpp
+    core/data_types/interpolatable_path.cpp
+    core/data_types/tweener.cpp
+    core/data_types/tween_types.cpp
     core/events/event_dispatcher.cpp
     core/events/input_event.cpp
     core/input_handler.cpp
@@ -15,11 +20,8 @@ PRIVATE
     core/package.cpp
     core/package_item.cpp
     core/gui_context.cpp
-    core/layout/relation.cpp
-    core/layout/transition.cpp
     core/hit_test.cpp
     core/component.cpp
-    core/layout/InterpolatablePath.cpp
     utils/byte_buffer.cpp
     utils/toolset.cpp
     utils/object_ptr.cpp
