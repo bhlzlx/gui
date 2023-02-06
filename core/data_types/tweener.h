@@ -34,7 +34,7 @@ namespace gui {
         Tweener* setDelay(float val);
         Tweener* setDuration(float val);
         Tweener* setBreakpoint(float val);
-        Tweener* setEase(float val);
+        Tweener* setEase(EaseType type);
         Tweener* setEasePeriod(float val);
         Tweener* setEaseOvershootOrAmplitude(float val);
         Tweener* setRepeat(int repeat, bool yoyo = false);
@@ -50,7 +50,6 @@ namespace gui {
         Tweener* setCompleteCallback(TweenCallback const& callback);
         Tweener* setCompleteCallbackSimple(TweenCallbackSimple const& callback);
         Tweener* setPaused(bool paused);
-
 
         float getDelay() const;
         float getDuration() const;
@@ -101,7 +100,6 @@ namespace gui {
         float               timeScale_;
         bool                snapping_;
         Userdata            userdata_;
-        // cocos2d::Value _userData;
         int                 valueSize_;
         InterpoPath*        path_;
 
