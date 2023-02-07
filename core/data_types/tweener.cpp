@@ -94,4 +94,44 @@ namespace gui {
         return this;
     }
 
+    float Tweener::getDelay() const {
+        return delay_;
+    }
+
+    float Tweener::getDuration() const {
+        return duration_;
+    }
+
+    int Tweener::getRepeat() const {
+        return repeat_;
+    }
+
+    void* Tweener::getTarget() const {
+        return target_;
+    }
+
+    float Tweener::getNormalizedTime() const {
+        return normalizedTime_;
+    }
+
+    bool Tweener::isCompleted() const {
+        return ended_;
+    }
+
+    bool Tweener::allCompleted() const {
+
+    }
+
+    void Tweener::seek(float time) const {
+
+    }
+
+    void Tweener::kill(bool complete = false) {
+
+    }
+
+    Userdata const& Tweener::getUserData() const {
+
+    }
+
 }

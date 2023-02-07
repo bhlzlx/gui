@@ -86,21 +86,26 @@ namespace gui {
         void*               target_;
         // cocos2d::Ref* _refTarget;
         TweenPropType       propType_;
-        bool                killed_;
-        bool                paused_;
-
+        //
+        uint8_t             killed_:1;
+        uint8_t             paused_:1;
+        uint8_t             yoyo_:1;
+        uint8_t             snapping_:1;
+        uint8_t             started_:1;
+        uint8_t             ended_:1;
+        //
         float               delay_;
         float               duration_;
         float               breakpoint_;
-        EaseType            easeType_;
         float               easeOvershootOrAmplitude_;
         float               easePeriod_;
-        int                 repeat_;
-        bool                yoyo_;
         float               timeScale_;
-        bool                snapping_;
-        Userdata            userdata_;
+        float               elapsedTime_;
+        float               normalizedTime_;
+        int                 repeat_;
         int                 valueSize_;
+        EaseType            easeType_;
+        Userdata            userdata_;
         InterpoPath*        path_;
 
         TweenCallback       onUpdate_;
@@ -108,10 +113,6 @@ namespace gui {
         TweenCallback       onComplete_;
         TweenCallbackSimple onComplete0_;
 
-        bool                started_;
-        int                 ended_;
-        float               elapsedTime_;
-        float               normalizedTime_;
 
     };
 

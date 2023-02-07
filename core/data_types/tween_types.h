@@ -14,6 +14,10 @@ namespace gui {
         void setVec3(glm::vec3 const& v) { val.x = v.x; val.y = v.y; val.z = v.z; }
         void setVec4(glm::vec4 const& v) { val = v; }
         void setColor4B(Color4B const& v) { val = glm::vec4(v.r, v.g, v.b, v.a); }
+        //
+        bool operator == (TValue const& rval) const {
+            return val == rval.val;
+        }
     };
 
     struct TweenConfig {
