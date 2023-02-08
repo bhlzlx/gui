@@ -5,7 +5,14 @@
 namespace gui {
 
     struct TValue {
-        glm::vec4 val; 
+        union {
+            glm::vec4 val; 
+            struct {
+                double d;
+                float x;
+                float y;
+            };
+        };
         glm::vec2 vec2() const { return glm::vec2(val.x, val.y); }
         glm::vec3 vec3() const { return glm::vec3(val.x, val.y, val.z); };
         glm::vec4 vec4() const { return val; };
@@ -14,6 +21,7 @@ namespace gui {
         void setVec3(glm::vec3 const& v) { val.x = v.x; val.y = v.y; val.z = v.z; }
         void setVec4(glm::vec4 const& v) { val = v; }
         void setColor4B(Color4B const& v) { val = glm::vec4(v.r, v.g, v.b, v.a); }
+        void reset() { val = {}; }
         //
         bool operator == (TValue const& rval) const {
             return val == rval.val;

@@ -21,6 +21,17 @@ namespace gui {
         Progress
     };
 
+    enum class TweenValueType {
+        None, 
+        Float,
+        Vec2,
+        Vec3,
+        Vec4,
+        Color4B = Vec4,
+        Double, // double这个应该可以去掉，感觉没什么必要，还要让数据多占一些空间
+        Shake,
+    };
+
     void SetObjectTweenProps(Object* target, TweenPropType type, TValue const& val);
 
     class Tweener {
@@ -58,7 +69,7 @@ namespace gui {
         float getNormalizedTime() const;
         bool isCompleted() const;
         bool allCompleted() const;
-        void seek(float time) const;
+        void seek(float time);
         void kill(bool complete = false);
         Userdata const& getUserData() const;
 
@@ -83,16 +94,18 @@ namespace gui {
         void callUpdateCallback();
         void callCompleteCallback();
 
-        void*               target_;
+        // void*               target_;
+        ObjectUID           target_;
         // cocos2d::Ref* _refTarget;
         TweenPropType       propType_;
+        EnumClass<TweenValueType, uint32_t>      valueType_;
         //
         uint8_t             killed_:1;
         uint8_t             paused_:1;
         uint8_t             yoyo_:1;
         uint8_t             snapping_:1;
         uint8_t             started_:1;
-        uint8_t             ended_:1;
+        uint8_t             ended_:3;
         //
         float               delay_;
         float               duration_;
@@ -103,7 +116,6 @@ namespace gui {
         float               elapsedTime_;
         float               normalizedTime_;
         int                 repeat_;
-        int                 valueSize_;
         EaseType            easeType_;
         Userdata            userdata_;
         InterpoPath*        path_;
@@ -112,7 +124,6 @@ namespace gui {
         TweenCallback       onStart_;
         TweenCallback       onComplete_;
         TweenCallbackSimple onComplete0_;
-
 
     };
 

@@ -1,6 +1,13 @@
 #include "tweener.h"
+#include <core/ease/ease.h>
+#include <random>
+#include <core/data_types/interpolatable_path.h>
 
 namespace gui {
+
+    float rand_0_1() {
+        return std::rand() / (float)RAND_MAX;
+    }
 
     Tweener* Tweener::setDelay(float val) {
         delay_  = val;
@@ -49,14 +56,18 @@ namespace gui {
     }
 
     Tweener* Tweener::setTargetAny(void* val) {
-        target_ = val;
+        assert(false);
+        // target_ = val;
         return this;
     }
 
     Tweener* Tweener::setTarget(ObjectUID uid) {
+        target_ = uid;
+        return this;
     }
 
     Tweener* Tweener::setTarget(ObjectUID uid, TweenPropType type) {
+        
     }
 
     Tweener* Tweener::setUserData(Userdata const& ud) {
@@ -115,23 +126,162 @@ namespace gui {
     }
 
     bool Tweener::isCompleted() const {
-        return ended_;
+        return 0 != ended_;
     }
 
     bool Tweener::allCompleted() const {
-
+        return ended_ == 1;
     }
 
-    void Tweener::seek(float time) const {
-
+    void Tweener::seek(float time) {
+        if(killed_) {
+            return;
+        }
+        elapsedTime_ = time;
+        if(elapsedTime_ < delay_) {
+            if(started_) {
+                elapsedTime_ = delay_;
+            } else {
+                return;
+            }
+        }
+        update();
     }
 
     void Tweener::kill(bool complete = false) {
-
+        if(killed_) {
+            return;
+        }
+        if(complete) {
+            if(ended_ == 0) {
+                if(breakpoint_ >= 0) {
+                    elapsedTime_ = delay_ + breakpoint_;
+                } else if( repeat_ >= 0) {
+                    elapsedTime_ = delay_ + duration_ * (repeat_+1);
+                } else {
+                    elapsedTime_ = delay_ + duration_ * 2;
+                }
+                update();
+            }
+            callCompleteCallback();
+        }
+        killed_ = true;
     }
 
     Userdata const& Tweener::getUserData() const {
-
+        return userdata_;
     }
+
+
+    void Tweener::_init() {
+    }
+
+    void Tweener::_reset() {
+    }
+
+    void Tweener::_update(float dt) {
+    }
+
+    void Tweener::update() {
+        ended_ = 0;
+        if(TweenValueType::None == valueType_) {  // 空的，没任何意义
+            if(elapsedTime_ >= delay_ + duration_) {
+                ended_ = 1;
+            }
+            return;
+        }
+        // 基本判断
+        if(!started_) {
+            if(elapsedTime_ < delay_) { // 还未开始？
+                return;
+            }
+            started_ = true;
+            callStartCallback();
+            if(killed_) { // 已经死了？
+                return;
+            }
+        }
+        bool reversed = false;
+        float exeTime = elapsedTime_ - delay_;
+        if(breakpoint_ >= 0 && exeTime >= breakpoint_) {
+            exeTime = breakpoint_;
+            ended_ = 2; // 被breakpoint打断
+        }
+        if(repeat_) {
+            int round = (int)floor(exeTime/duration_);
+            exeTime -= duration_ * round;
+            if(yoyo_) {
+                reversed = (round % 2 == 1);
+            }
+            if(repeat_ > 0 && repeat_ - round < 0) {
+                if(yoyo_) {
+                    reversed = (repeat_ % 2 == 1);
+                }
+                exeTime = duration_;
+                ended_ = 1;
+            }
+        } else if(exeTime >= duration_) {
+            exeTime = duration_;
+            ended_ = 1;
+        }
+        normalizedTime_ = ease::evaluate(easeType_, reversed ? (duration_ - exeTime) : exeTime, duration_, easeOvershootOrAmplitude_, easePeriod_);
+        this->val.reset();
+        this->deltaVal.reset();
+
+        if(valueType_ == TweenValueType::Double) { // 双精度浮点插值
+            double d = startVal.d + (endVal.d - startVal.d) * normalizedTime_;
+            if(snapping_) {
+                d = round(d);
+            }
+            deltaVal.d = d - val.d;
+            val.d = d;
+            val.x = float(d);
+        } else if(valueType_ == TweenValueType::Shake) { // 随机值
+            if (ended_ == 0) {
+                float r = startVal.val.w * (1 - normalizedTime_);
+                float rx = (rand_0_1() * 2 - 1) * r;
+                float ry = (rand_0_1() * 2 - 1) * r;
+                rx = rx > 0 ? ceil(rx) : floor(rx);
+                ry = ry > 0 ? ceil(ry) : floor(ry);
+                deltaVal.val.x = rx;
+                deltaVal.val.y = ry;
+                val.val.x = startVal.val.x + rx;
+                val.val.y = startVal.val.y + ry;
+            } else {
+                val.setVec3(startVal.vec3());
+            }
+        } else if(path_) { // 路径插值
+            glm::vec3 v3 = path_->pointAt(normalizedTime_);
+            if(snapping_) {
+                v3.x = round(v3.x);
+                v3.y = round(v3.y);
+                v3.z = round(v3.z);
+            }
+            deltaVal.setVec3(v3 - val.vec3());
+            val.setVec3(v3);
+        } else { // float/vec2/vec3/vec4
+            assert(valueType_ > 0 && valueType_ <= 4);
+            for(uint32_t i = 0; i<valueType_; ++i) {
+                float fval = startVal.val[i] + (endVal.val[0] - startVal.val[i]) * normalizedTime_;
+                if(snapping_) {
+                    fval = round(fval);
+                }
+                deltaVal.val[i] = fval - val.val[i];
+                val.val[i] = fval;
+            }
+        }
+
+        if()
+    }
+
+    void Tweener::callStartCallback() {
+    }
+
+    void Tweener::callUpdateCallback() {
+    }
+
+    void Tweener::callCompleteCallback() {
+    }
+
 
 }

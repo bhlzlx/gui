@@ -167,6 +167,18 @@ namespace gui {
     struct Userdata {
     };
 
+
+    template<class T, class Rep, std::enable_if_t<std::is_integral_v<Rep>, bool> v = true>
+    class EnumClass {
+    private:
+        Rep val_;
+    public:
+        EnumClass(T val = 0) : val_((Rep)val) {}
+        EnumClass(Rep val) : val_(val) {}
+        operator Rep() const { return val_; }
+        operator T() const { return (T)val_; }
+    };
+
     enum class PackageBlockIndex {
         Dependences = 0,
         Items = 1,
