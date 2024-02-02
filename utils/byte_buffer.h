@@ -64,7 +64,7 @@ namespace gui {
 
         template<class T>
         inline T read() {
-            static_assert(std::is_pod_v<T>, "must be pod type!");
+            static_assert(std::is_trivial_v<T>, "must be pod type!");
             T val;
             #if LITTLE_ENDIAN // 这里需要注意一下大小端问题
             memcpy(&val, ptr_ + offset_ + position_, sizeof(T));

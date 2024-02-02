@@ -1,3 +1,5 @@
+#pragma once
+
 #include <core/declare.h>
 
 namespace gui {

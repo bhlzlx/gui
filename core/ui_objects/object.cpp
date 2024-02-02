@@ -58,10 +58,10 @@ namespace gui {
     }
 
     void Object::release() {
-        if(refCount_ == 1) {
-            auto destroyManager = GetGUIContext()->destroyManager();
-            destroyManager->add(uid_);
-        }
+        handle_.reset();
+        delete this;
     }
+
+    Object::~Object() {}
 
 }

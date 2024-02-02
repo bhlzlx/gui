@@ -1,5 +1,5 @@
 #include "object_ptr.h"
-#include <core/object.h>
+#include <core/ui_objects/object.h>
 
 namespace gui {
 

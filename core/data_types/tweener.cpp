@@ -1,9 +1,71 @@
 #include "tweener.h"
+#include "../declare.h"
 #include <core/ease/ease.h>
-#include <random>
+#include <core/gui_context.h>
 #include <core/data_types/interpolatable_path.h>
+#include <core/ui_objects/object.h>
+#include <random>
 
 namespace gui {
+
+    void SetObjectTweenProps(Object* target, TweenPropType type, TValue const& val) {
+        if (target == nullptr) {
+            return;
+        }
+        switch (type)
+        {
+        case TweenPropType::X:
+            target->setX(val.x);
+            break;
+
+        case TweenPropType::Y:
+            target->setY(val.x);
+            break;
+
+        case TweenPropType::Position:
+            target->setPosition(val.vec2());
+            break;
+
+        case TweenPropType::Width:
+            target->setWidth(val.x);
+            break;
+
+        case TweenPropType::Height:
+            target->setHeight(val.x);
+            break;
+
+        case TweenPropType::Size:
+            target->setSize(Size2D<float>{val.x, val.y});
+            break;
+
+        case TweenPropType::ScaleX:
+            target->setScaleX(val.x);
+            break;
+
+        case TweenPropType::ScaleY:
+            target->setScaleY(val.x);
+            break;
+
+        case TweenPropType::Scale:
+            target->setScaleX(val.x);
+            target->setScaleY(val.y);
+            break;
+
+        case TweenPropType::Rotation: {
+            target->setRotation(val.x);
+            break;
+        }
+        case TweenPropType::Alpha: {
+            target->setAlpha(val.x);
+            break;
+        }
+        case TweenPropType::Progress:
+            // target->as<GProgressBar>()->update(val.d);
+            break;
+        default:
+            break;
+        }
+    }
 
     float rand_0_1() {
         return std::rand() / (float)RAND_MAX;
@@ -39,7 +101,7 @@ namespace gui {
         return this;
     }
 
-    Tweener* Tweener::setRepeat(int repeat, bool yoyo = false) {
+    Tweener* Tweener::setRepeat(int repeat, bool yoyo) {
         repeat_ = repeat;
         yoyo_ = yoyo;
         return this;
@@ -67,7 +129,8 @@ namespace gui {
     }
 
     Tweener* Tweener::setTarget(ObjectUID uid, TweenPropType type) {
-        
+        target_ = uid;
+        return this;
     }
 
     Tweener* Tweener::setUserData(Userdata const& ud) {
@@ -117,7 +180,7 @@ namespace gui {
         return repeat_;
     }
 
-    void* Tweener::getTarget() const {
+    ObjectUID Tweener::getTarget() const {
         return target_;
     }
 
@@ -148,7 +211,7 @@ namespace gui {
         update();
     }
 
-    void Tweener::kill(bool complete = false) {
+    void Tweener::kill(bool complete) {
         if(killed_) {
             return;
         }
@@ -270,8 +333,16 @@ namespace gui {
                 val.val[i] = fval;
             }
         }
+        //
+        auto objectTable = GetGUIContext()->objectTable();
+        if(target_.valid() && propType_ != TweenPropType::None) {
+            auto obj = objectTable->query(target_);
+            if(obj) {
+                // setProps
+            }
+        }
+        
 
-        if()
     }
 
     void Tweener::callStartCallback() {

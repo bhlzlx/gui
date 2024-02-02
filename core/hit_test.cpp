@@ -1,6 +1,6 @@
 #include "hit_test.h"
 #include <utils/byte_buffer.h>
-#include <core/object.h>
+#include <core/ui_objects/object.h>
 
 namespace gui {
 

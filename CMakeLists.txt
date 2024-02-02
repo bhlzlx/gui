@@ -13,15 +13,17 @@ PRIVATE
     core/data_types/interpolatable_path.cpp
     core/data_types/tweener.cpp
     core/data_types/tween_types.cpp
+    core/display_objects/display_object.cpp
+    core/display_objects/container.cpp
+    core/ui_objects/component.cpp
+    core/ui_objects/object.cpp
     core/events/event_dispatcher.cpp
     core/events/input_event.cpp
     core/input_handler.cpp
-    core/object.cpp
     core/package.cpp
     core/package_item.cpp
     core/gui_context.cpp
     core/hit_test.cpp
-    core/component.cpp
     utils/byte_buffer.cpp
     utils/toolset.cpp
     utils/object_ptr.cpp

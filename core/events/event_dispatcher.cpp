@@ -11,6 +11,15 @@ namespace gui {
     //     return rst;
     // }
 
+    EventContext::EventContext(EventType event, EventDispatcher* sender, void* data)
+        : event_(event)
+        , sender_(sender->getHandle())
+        , stopped_(0)
+        , defaultPrevented_(0)
+        , captureTouch_(1)
+        , data_(data)
+    {}
+
     void EventDispatcher::addEventListener(EventType event, EventCallback const& callback, EventTag tag) {
         if(tag) {
             for(auto &item: callbackItems_) {
@@ -63,8 +72,11 @@ namespace gui {
         return false;
     }
 
-    bool EventDispatcher::dispatchEvent(EventType event, void* data, std::vector<uint8_t> const& buffer) {
-        EventContext ctx(event, this, data);   
+    bool EventDispatcher::dispatchEvent(EventType event, void* data, Value dataValue) {
+        if(!callbackItems_.size()) {
+            return false;
+        }
+        EventContext ctx(event, this, data);
         return true;
     }
 }

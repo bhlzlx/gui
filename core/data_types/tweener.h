@@ -21,7 +21,7 @@ namespace gui {
         Progress
     };
 
-    enum class TweenValueType {
+    enum class TweenValueType : uint8_t {
         None, 
         Float,
         Vec2,
@@ -35,9 +35,9 @@ namespace gui {
     void SetObjectTweenProps(Object* target, TweenPropType type, TValue const& val);
 
     class Tweener {
-    private:
+    public:
         using TweenCallback = std::function<void(Tweener*)>;
-        using TweenCallbackSimple = std::function<void(Tweener*)>;
+        using TweenCallbackSimple = std::function<void()>;
     public:
         Tweener();
         ~Tweener();
@@ -65,7 +65,7 @@ namespace gui {
         float getDelay() const;
         float getDuration() const;
         int getRepeat() const;
-        void* getTarget() const;
+        ObjectUID getTarget() const;
         float getNormalizedTime() const;
         bool isCompleted() const;
         bool allCompleted() const;
@@ -98,7 +98,7 @@ namespace gui {
         ObjectUID           target_;
         // cocos2d::Ref* _refTarget;
         TweenPropType       propType_;
-        EnumClass<TweenValueType, uint32_t>      valueType_;
+        UnderlyingEnum<TweenValueType>      valueType_;
         //
         uint8_t             killed_:1;
         uint8_t             paused_:1;
@@ -124,7 +124,11 @@ namespace gui {
         TweenCallback       onStart_;
         TweenCallback       onComplete_;
         TweenCallbackSimple onComplete0_;
-
+    public:
+        static TweenCallback OnDelayedPlay;
+        static TweenCallback OnCheckAllComplete;
+        static TweenCallback OnDelayedPlayItem;
     };
+
 
 }

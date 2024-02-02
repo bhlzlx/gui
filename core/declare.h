@@ -28,7 +28,7 @@ namespace gui {
         Size2D<T>   size;
         T left() { return base.x; };
         T right() { return base.x + size.width; };
-        T top() { return base.y};
+        T top() { return base.y; };
         T bottom() { return base.y + size.height; };
     };
 
@@ -141,14 +141,21 @@ namespace gui {
     };
 
     class GUIContext;
-    class Object;
     class Package;
     class PackageItem;
     class Group;
     class Touch;
     class InputEvent;
     class EventDispatcher;
+    // ui object
+    class Object;
     class Component;
+    // display object
+    class Container;
+    class ScrollPane;
+
+    ///
+    class Transition;
     class Controller;
     class InputHandler;
     class ObjectDestroyManager;
@@ -168,15 +175,17 @@ namespace gui {
     };
 
 
-    template<class T, class Rep, std::enable_if_t<std::is_integral_v<Rep>, bool> v = true>
-    class EnumClass {
-    private:
-        Rep val_;
+    template<class T>
+    class UnderlyingEnum {
     public:
-        EnumClass(T val = 0) : val_((Rep)val) {}
-        EnumClass(Rep val) : val_(val) {}
-        operator Rep() const { return val_; }
-        operator T() const { return (T)val_; }
+        using val_type = typename std::underlying_type<T>::type;
+    private:
+        T val_;
+    public:
+        UnderlyingEnum(T val = 0) : val_(val) {}
+        UnderlyingEnum(val_type val) : val_((T)val) {}
+        operator val_type() const { return (val_type)val_; }
+        operator T() const { return val_; }
     };
 
     enum class PackageBlockIndex {

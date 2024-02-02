@@ -3,6 +3,10 @@
 //#include <string/name.h>
 #include <functional>
 #include <vector>
+#include <concepts>
+#include "../data_types/handle.h"
+#include "core/data_types/handle.h"
+#include "core/data_types/value.h"
 
 namespace gui {
 
@@ -15,24 +19,15 @@ namespace gui {
     class EventContext {
     private:
         EventType           event_;
-        EventDispatcher*    sender_;
-        // Object*             object_;
+        Handle              sender_;
         uint8_t             stopped_ : 1;
         uint8_t             defaultPrevented_ : 1;
         uint8_t             captureTouch_ : 1;
-        void*               data_;
+        Value               data_;
     public:
-        EventContext(EventType event, EventDispatcher* sender, void* data)
-            : event_(event)
-            , sender_(sender)
-            // , object_(object)
-            , stopped_(0)
-            , defaultPrevented_(0)
-            , captureTouch_(1)
-            , data_(data)
-        {}
+        EventContext(EventType event, EventDispatcher* sender, void* data);
         EventType event() const { return event_; }
-        void* data() { return data_; }
+        Value const& data() const { return data_; }
     };
 
     class EventTag {
@@ -64,6 +59,7 @@ namespace gui {
             int             dispatching;
         };
     private:
+        ObjectHandle                            handle_;
         std::vector<EventCallbackItem*>         callbackItems_;
     public:
         EventDispatcher()
@@ -72,8 +68,13 @@ namespace gui {
         void addEventListener(EventType event, EventCallback const& callback, EventTag tag = EventTag());
         void removeEventListener(EventType event, EventTag tag = EventTag());
         bool hasEventListener(EventType event, EventTag tag = EventTag()) const;
-        bool dispatchEvent(EventType event, void* data, std::vector<uint8_t> const& buffer);
+        bool dispatchEvent(EventType event, void* data, Value dataValue);
         bool bubbleEvent(EventType event, void* data, std::vector<uint8_t> const& buffer);
+        // template<class T>
+        // requires std::sub
+        Handle getHandle() {
+            return handle_.handle();
+        }
     };
 
     // comm::Name GetEventName(char const* name);
