@@ -6,8 +6,9 @@
 
 namespace gui {
 
-    template<typename T, typename IntType = uint8_t, typename validation = std::enable_if_t<std::is_enum<T>::value, bool>>
+    template<typename T, typename validation = std::enable_if_t<std::is_enum<T>::value, bool>>
     class enum_bits {
+        using IntType = std::underlying_type<T>::type;
     private:
         IntType _flags;
     private:

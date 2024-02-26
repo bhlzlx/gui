@@ -194,6 +194,25 @@ namespace gui {
         Sprites = 2,
         HitTestData = 3,
         StringTable = 4,
+        TextField = 5,
+    };
+
+    enum class ComponentBlockIndex {
+        Props = 0,
+        Controller = 1,
+        Children = 2,
+        Relations = 3,
+        CustomData = 4,
+        Transitions = 5,
+        Ext, // button, combobox, progressbar, scrollbar, slider
+        ScrollData = 7,
+    };
+
+    enum class ObjectBlockIndex {
+        Props = 0,
+        Extra = 1,
+        Gears = 2,
+        Relations = 3,
     };
 
     using ObjectUID = comm::VersionedUID;

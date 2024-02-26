@@ -1,4 +1,5 @@
 #include "package.h"
+#include "core/package.h"
 #include <cstdlib>
 #include <utils/byte_buffer.h>
 #include <utils/toolset.h>
@@ -29,11 +30,12 @@ namespace gui {
         return false;
     }
 
-    bool Package::loadFromBuffer(ByteBuffer* buffer) {
+    bool Package::loadFromBuffer(ByteBuffer* buffer, std::string_view assetPath) {
         // magic number, version, bool, id, name,[20 bytes], indexTables
         if(buffer->read<uint32_t>() != 0x46475549) {
             return false;
         }
+        assetPath_ = assetPath;
         buffer->version = buffer->read<int>();
         bool v2 = buffer->version >= 2;
         buffer->read<bool>();
@@ -148,8 +150,8 @@ namespace gui {
                 }
             }
             //
-            if(v2) {
-                std::string str = buffer->read<csref>();
+            if(v2) { // v2 之后有更多的属于
+                std::string str = buffer->read<csref>(); // 这是分枝信息
                 if(!str.empty()) {
                     item->name_ = str + "/" + item->name_;
                 }
@@ -290,4 +292,5 @@ namespace gui {
             });
         }
     }
+
 }

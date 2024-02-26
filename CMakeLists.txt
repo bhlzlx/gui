@@ -26,12 +26,12 @@ PRIVATE
     core/hit_test.cpp
     utils/byte_buffer.cpp
     utils/toolset.cpp
-    utils/object_ptr.cpp
 )
 
 target_link_libraries(gui
 PRIVATE
     LightWeightCommon
+    EnTT
     UGI
 )
 

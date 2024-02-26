@@ -39,12 +39,15 @@ namespace gui {
     public:
         Package();
         ~Package();
-        bool loadFromBuffer(ByteBuffer* byteBuffer);
+        bool loadFromBuffer(ByteBuffer* byteBuffer, std::string_view assetPath);
+
+        Object* createObject(std::string const& resName);
     private:
         static bool CheckModuleInitialized();
     public:
         static Package* AddPackage(std::string const& assetPath);
         static void InitPackageModule(comm::IArchive* archive);
+
     };
 
     Package* PackageForID(std::string const& id);

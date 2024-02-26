@@ -1,4 +1,5 @@
 #pragma once
+#include "core/data_types/value.h"
 #include <cstdint>
 #include <queue>
 #include <core/declare.h>
@@ -25,9 +26,15 @@ namespace gui {
 
     class Object : public EventDispatcher {
     protected:
-        glm::vec2       position_;
-        Size2D<float>   size_;
+        std::string     id_;
+        std::string     name_;
+        glm::vec3       position_;
         Size2D<float>   rawSize_;
+        Size2D<float>   size_;
+        Size2D<float>   minSize_;
+        Size2D<float>   maxSize_;
+        //
+        // Size2D<float>   rawSize_;
         Point2D<float>  scale_;
         Point2D<float>  pivot_;
         glm::vec2       skew_;
@@ -48,14 +55,15 @@ namespace gui {
         Group*          group_;
         float           sizePercentInGroup_;
 
-        user_data_t     data_;
+        // user_data_t     data_;
+        Value           data_;
         //
     public:
         Object()
             : EventDispatcher()
             , position_{}
-            , size_{}
             , rawSize_{}
+            , size_{}
             , scale_{}
             , pivot_{}
             , alpha_(1.0f)
@@ -105,7 +113,7 @@ protected:
         void setY(float v) { position_.y = v; }
 
         glm::vec2 position() const { return position_; }
-        void setPosition( glm::vec2 const& val) { position_ = val; }
+        void setPosition( glm::vec3 const& val) { position_ = val; }
 
         void setSize(Size2D<float> const& size) {
             size_ = size;
@@ -135,11 +143,13 @@ protected:
         float scaleY() const { return scale_.y; }
         void setScaleX(float val) { scale_.x = val; }
         void setScaleY(float val) { scale_.y = val; }
+        void setScale(float x, float y);
 
         float skewX() const { return skew_.x; }
         float skewY() const { return skew_.y; }
         void setSkewX(float val) { skew_.x = val; }
         void setSkewY(float val) { skew_.y = val; }
+        void setSkew(float x, float y);
 
         float rotation() const { return rotation_; }
         void setRotation(float val) { rotation_ = val; }
@@ -151,7 +161,7 @@ protected:
         void setGrayed(bool val);
 
         bool visible() const { return visible_; }
-        void setVisible();
+        void setVisible(bool);
 
         bool touchable() const { return touchable_; }
         void setTouchable(bool val) { touchable_ = val; }
@@ -174,14 +184,6 @@ protected:
         user_data_t data() const { return data_; }
         void setData(user_data_t value) { data_ = value; }
 
-    };
-
-    class ObjectDestroyManager {
-    private:
-        std::vector<ObjectUID> destroyList_;
-    public:
-        void add(ObjectUID uid);
-        void tick();
     };
 
 }

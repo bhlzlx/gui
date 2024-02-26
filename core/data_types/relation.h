@@ -1,7 +1,6 @@
 #pragma once
 #include "../events/event_dispatcher.h"
 #include <core/declare.h>
-#include <utils/object_ptr.h>
 #include <vector>
 
 namespace gui {
@@ -14,8 +13,8 @@ namespace gui {
 
     class RelationItem {
     private:
-        ObjectPtr                       dst_;         // 被布局影响的对象
-        ObjectPtr                       target_;        // 布局系统监听的对象
+        Object*                         dst_;         // 被布局影响的对象
+        Object*                         target_;        // 布局系统监听的对象
         std::vector<RelationInfo>       infos_;
         Point2D<float>                  targetPos_;
         Size2D<float>                   targetSize_;

@@ -1,67 +1,85 @@
 #include "object.h"
+#include "core/data_types/transition.h"
+#include "core/declare.h"
 #include <cassert>
 #include <core/gui_context.h>
 
 namespace gui {
 
-    void ObjectDestroyManager::add(ObjectUID uid) {
-        destroyList_.push_back(uid);
-    }
-
-    void ObjectDestroyManager::tick() {
-        auto context = GetGUIContext();
-        auto objectTable = context->objectTable();
-        for(auto iter = destroyList_.begin(); iter != destroyList_.end(); ++iter) {
-            auto uid = *iter;
-            auto obj = objectTable->removeRegist(uid);
-            // destroy or move to object pool
-            // todo
-        }
-    }
-
-    ObjectUID ObjectTable::registObject(Object* obj) {
-        auto id = IDManager_.alloc();
-        auto row = id.number >> BitSize;
-        auto index = id.number & RowMask;
-        if(rows_.size() <= row) {
-            assert(rows_.size() == row);
-            item_t* row = new item_t[RowSize];
-            assert(row);
-            rows_.push_back(row);
-        }
-        rows_[row][index].obj = obj;
-        rows_[row][index].uid = id;
-        return id;
-    }
-
-    Object* ObjectTable::removeRegist(ObjectUID id) {
-        auto row = id.number >> BitSize;
-        auto index = id.number & RowMask;
-        auto obj = rows_[row][index].obj;
-        assert(obj != nullptr);
-        rows_[row][index].obj = nullptr;
-        IDManager_.free(id);
-        return obj;
-    }
-
-    Object* ObjectTable::query(ObjectUID uid) {
-        auto row = uid.number >> BitSize;
-        auto index = uid.number & RowMask;
-        if(row < rows_.size()) {
-            auto item = rows_[row][index];
-            if(item.uid.uuid() == uid.uuid()) {
-                return item.obj;
-            }
-            return nullptr;
-        }
-        return nullptr;
-    }
-
     void Object::release() {
-        handle_.reset();
         delete this;
     }
 
+
     Object::~Object() {}
+
+    void Object::setupBeforeAdd(ByteBuffer* buffer, int startPos) {
+        buffer->seekToBlock(startPos, PackageBlockIndex::Dependences);
+        buffer->skip(5);
+        id_ = buffer->read<std::string>();
+        name_ = buffer->read<std::string>();
+        float f1, f2, f3, f4;
+        f1 = buffer->read<int>();
+        f2 = buffer->read<int>();
+        if(buffer->version >= 7) {
+            f3 = buffer->read<int>();
+        } else {
+            f3 = 0;
+        }
+        setPosition({f1, f2, f3}); // set position
+        if(buffer->read<bool>()) {
+            rawSize_.width = buffer->read<int>();
+            rawSize_.height = buffer->read<int>();
+            setSize(rawSize_);
+        }
+        if(buffer->read<bool>()) {//
+            minSize_.width = buffer->read<int>();
+            maxSize_.width = buffer->read<int>();
+            minSize_.height = buffer->read<int>();
+            maxSize_.height = buffer->read<int>();
+        }
+        if(buffer->read<bool>()) {
+            f1 = buffer->read<float>();
+            f2 = buffer->read<float>();
+            setScale(f1, f2);
+        }
+        if(buffer->read<bool>()) {
+            f1 = buffer->read<float>();
+            f2 = buffer->read<float>();
+            setSkew(f1, f2);
+        }
+        if(buffer->read<bool>()) {
+            f1 = buffer->read<float>();
+            f2 = buffer->read<float>();
+            setPivot({f1, f2}, buffer->read<bool>());
+        }
+        f1 = buffer->read<float>();
+        if(f1 != 1) {
+           setAlpha(f1);
+        }
+        f1 = buffer->read<float>();
+        if(f1 != 1) {
+            setRotation(f1);
+        }
+        if(!buffer->read<bool>()) {
+            setVisible(false);
+        }
+        if(!buffer->read<bool>()) {
+            setTouchable(false);
+        }
+        if(buffer->read<bool>()) {
+            setGrayed(true);
+        }
+        uint8_t blendMode = buffer->read<uint8_t>(); // blend mode
+        int filter = buffer->read<uint8_t>();
+        if(filter == 1) {
+            // read color filter data
+            buffer->read<float>();
+            buffer->read<float>();
+            buffer->read<float>();
+            buffer->read<float>();
+        }
+        data_ = buffer->read<std::string>(); // user data???
+    }
 
 }
