@@ -160,6 +160,7 @@ namespace gui {
     class InputHandler;
     class ObjectDestroyManager;
     class ObjectTable;
+    template<class T>
     class ByteBuffer;
     class InterpoPath;
 
@@ -174,7 +175,6 @@ namespace gui {
     struct Userdata {
     };
 
-
     template<class T>
     class UnderlyingEnum {
     public:
@@ -186,33 +186,6 @@ namespace gui {
         UnderlyingEnum(val_type val) : val_((T)val) {}
         operator val_type() const { return (val_type)val_; }
         operator T() const { return val_; }
-    };
-
-    enum class PackageBlockIndex {
-        Dependences = 0,
-        Items = 1,
-        Sprites = 2,
-        HitTestData = 3,
-        StringTable = 4,
-        TextField = 5,
-    };
-
-    enum class ComponentBlockIndex {
-        Props = 0,
-        Controller = 1,
-        Children = 2,
-        Relations = 3,
-        CustomData = 4,
-        Transitions = 5,
-        Ext, // button, combobox, progressbar, scrollbar, slider
-        ScrollData = 7,
-    };
-
-    enum class ObjectBlockIndex {
-        Props = 0,
-        Extra = 1,
-        Gears = 2,
-        Relations = 3,
     };
 
     using ObjectUID = comm::VersionedUID;

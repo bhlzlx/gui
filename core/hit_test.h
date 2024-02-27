@@ -1,4 +1,5 @@
 #pragma once
+#include "utils/byte_buffer.h"
 #include <core/declare.h>
 
 namespace gui {
@@ -16,7 +17,7 @@ namespace gui {
         float       scale;
         uint8_t*    pixels;
         //
-        void load(ByteBuffer* buffer);
+        void load(ByteBuffer<PackageBlocks>* buffer);
         PixelHitTestData() noexcept;
         ~PixelHitTestData();
     };

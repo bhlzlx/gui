@@ -1,5 +1,6 @@
 #pragma once
 #include "core/data_types/value.h"
+#include "core/ui_objects/object_factory.h"
 #include <cstdint>
 #include <queue>
 #include <core/declare.h>
@@ -25,6 +26,7 @@ namespace gui {
     using user_data_t = void*;
 
     class Object : public EventDispatcher {
+        friend class ObjectFactory;
     protected:
         std::string     id_;
         std::string     name_;
@@ -35,6 +37,7 @@ namespace gui {
         Size2D<float>   maxSize_;
         //
         // Size2D<float>   rawSize_;
+        PackageItem*    packageItem_;
         Point2D<float>  scale_;
         Point2D<float>  pivot_;
         glm::vec2       skew_;
@@ -97,8 +100,8 @@ protected:
         virtual void onExit();
         virtual void onControllerChanged(Controller* controller);
 
-        virtual void setupBeforeAdd(ByteBuffer* buffer, int startPos);
-        virtual void setupAfterAdd(ByteBuffer* buffer, int startPos);
+        virtual void setupBeforeAdd(ByteBuffer<ObjectBlocks>* buffer, int startPos);
+        virtual void setupAfterAdd(ByteBuffer<ObjectBlocks>* buffer, int startPos);
 
         bool init();
 
@@ -183,6 +186,8 @@ protected:
 
         user_data_t data() const { return data_; }
         void setData(user_data_t value) { data_ = value; }
+
+        virtual void constructFromResource() {};
 
     };
 

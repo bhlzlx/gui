@@ -20,7 +20,7 @@ namespace gui {
         }
     }
 
-    void PixelHitTestData::load(ByteBuffer* buffer) {
+    void PixelHitTestData::load(ByteBuffer<PackageBlocks>* buffer) {
         buffer->skip(4);
         width = buffer->read<int>();
         scale = 1.0f / buffer->read<int8_t>();

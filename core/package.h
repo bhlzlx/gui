@@ -1,4 +1,5 @@
 #pragma once
+#include "utils/byte_buffer.h"
 #include <core/declare.h>
 #include <string>
 #include <unordered_map>
@@ -17,6 +18,7 @@ namespace gui {
         std::string                                                 id_;
         std::string                                                 name_;
         std::string                                                 assetPath_;
+        ByteBuffer<PackageBlocks>                                   packageBuffer_;
         std::vector<PackageItem*>                                   packageItems_;
 
         std::unordered_map<std::string, PackageItem*>               itemsByID_;
@@ -26,7 +28,9 @@ namespace gui {
         std::vector<std::string>                                    stringTable_;
         std::vector<dependence_t>                                   dependencies_;
         std::vector<std::string>                                    branches_;
-        int                                                         branchIndex_;
+        int32_t                                                     branchIndex_;
+
+        int                                                         constructing_;
         // static data
         static std::unordered_map<std::string, Package*>            packageInstByID;
         static std::unordered_map<std::string, Package*>            packageInstByName;
@@ -39,9 +43,14 @@ namespace gui {
     public:
         Package();
         ~Package();
-        bool loadFromBuffer(ByteBuffer* byteBuffer, std::string_view assetPath);
+        bool loadFromBuffer(ByteBuffer<PackageBlocks>* buffer, std::string_view assetPath);
 
         Object* createObject(std::string const& resName);
+
+        int32_t branchIndex() const {
+            return branchIndex_;
+        }
+        PackageItem* itemByID(std::string const& id);
     private:
         static bool CheckModuleInitialized();
     public:

@@ -1,5 +1,6 @@
 #include "package.h"
 #include "core/package.h"
+#include "core/ui_objects/object_factory.h"
 #include <cstdlib>
 #include <utils/byte_buffer.h>
 #include <utils/toolset.h>
@@ -30,7 +31,7 @@ namespace gui {
         return false;
     }
 
-    bool Package::loadFromBuffer(ByteBuffer* buffer, std::string_view assetPath) {
+    bool Package::loadFromBuffer(ByteBuffer<PackageBlocks>* buffer, std::string_view assetPath) {
         // magic number, version, bool, id, name,[20 bytes], indexTables
         if(buffer->read<uint32_t>() != 0x46475549) {
             return false;
@@ -46,7 +47,7 @@ namespace gui {
         int indexTablePos = buffer->pos();
         int count = 0;
         // read string table
-        buffer->seekToBlock(indexTablePos, PackageBlockIndex::StringTable); {
+        buffer->seekToBlock(indexTablePos, PackageBlocks::StringTable); {
             count = buffer->read<int>();
             stringTable_.resize(count);
             for(int i = 0; i<count; ++i) {
@@ -54,7 +55,7 @@ namespace gui {
             } 
         }
         // read dependences
-        buffer->seekToBlock(indexTablePos, PackageBlockIndex::Dependences); {
+        buffer->seekToBlock(indexTablePos, PackageBlocks::Dependences); {
             count = buffer->read<int16_t>();
             for(int i = 0; i<count; ++i) {
                 auto const& id = buffer->read<csref>();
@@ -73,7 +74,7 @@ namespace gui {
             branchIncluded = count > 0;
         }
         // read package items
-        buffer->seekToBlock(indexTablePos, PackageBlockIndex::Items);
+        buffer->seekToBlock(indexTablePos, PackageBlocks::Items);
         PackageItem* item = nullptr;
         auto slashPos = assetPath_.find('/');
         std::string basePath;
@@ -114,11 +115,11 @@ namespace gui {
                 case PackageItemType::MovieClip: {
                     buffer->read<bool>(); // smoothing
                     item->objType_ = ObjectType::MovieClip;
-                    item->rawData_ = buffer->read<ByteBuffer*>();  // a slice of byte buffer
+                    item->rawData_ = buffer->read<ByteBuffer<>>().clone();  // a slice of byte buffer
                     break;
                 }
                 case PackageItemType::Font: {
-                    item->rawData_ = buffer->read<ByteBuffer*>();
+                    item->rawData_ = buffer->read<ByteBuffer<>>().clone();
                     break;
                 }
                 case PackageItemType::Component: {
@@ -128,7 +129,7 @@ namespace gui {
                     } else {
                         item->objType_ = ObjectType::Component;
                     }
-                    item->rawData_ = buffer->read<ByteBuffer*>();
+                    item->rawData_ = buffer->read<ByteBuffer<>>().clone();
                     // todo: UIObjectFactory::Re...
                     break;
                 }
@@ -179,7 +180,7 @@ namespace gui {
             buffer->setPos(nextPos);
         }
         // read spirites
-        buffer->seekToBlock(indexTablePos, PackageBlockIndex::Sprites);
+        buffer->seekToBlock(indexTablePos, PackageBlocks::Sprites);
         count = buffer->read<int16_t>();
         for(int i = 0; i<count; ++i) {
             int nextPos = buffer->read<uint16_t>();
@@ -207,7 +208,7 @@ namespace gui {
             buffer->setPos(nextPos);
         }
         // pixel hit test data
-        if(buffer->seekToBlock(indexTablePos, PackageBlockIndex::HitTestData)) {
+        if(buffer->seekToBlock(indexTablePos, PackageBlocks::HitTestData)) {
             count = buffer->read<int16_t>();
             for(int i = 0; i<count; ++i) {
                 int nextPos = buffer->read<int>();
@@ -242,12 +243,12 @@ namespace gui {
             COMMLOGE("GUI: package not found [%s]", assetPath.c_str());
             return nullptr;
         }
-        ByteBuffer buff(file->size());
+        ByteBuffer<PackageBlocks> buff(file->size());
         file->read(buff.ptr(), file->size());
         // ready to read, create a package object
         Package* package = new Package();
         package->assetPath_ = assetPath;
-        auto rst = package->loadFromBuffer(&buff);
+        auto rst = package->loadFromBuffer(&buff, assetPath);
         if(!rst) {
             delete package;
             return nullptr;
@@ -291,6 +292,29 @@ namespace gui {
                 // do nothing
             });
         }
+    }
+
+    Object* Package::createObject(std::string const& resName) {
+        auto iter = itemsByName_.find(resName);
+        if(iter == itemsByName_.end()) {
+            return nullptr;
+        }
+        auto obj = ObjectFactory::CreateObject(iter->second);
+        if(!obj) {
+            return nullptr;
+        }
+        ++constructing_;
+        obj->constructFromResource();
+        --constructing_;
+        return obj;
+    }
+
+    PackageItem* Package::itemByID(std::string const& id) {
+        auto iter = itemsByID_.find(id);
+        if(iter != itemsByID_.end()) {
+            return iter->second;
+        }
+        return nullptr;
     }
 
 }

@@ -2,14 +2,16 @@
 #include <core/declare.h>
 #include <core/hit_test.h>
 #include <string>
+#include "../utils/byte_buffer.h"
+#include "core/ui_objects/object_factory.h"
 
 namespace gui {
 
     enum class PackageItemType {
-        Image,
-        MovieClip,
-        Sound,
-        Component,
+        Image, // 纹理
+        MovieClip, // 序列
+        Sound, // 音频
+        Component, // 组件
         Atlas,
         Font,
         Swf,
@@ -43,7 +45,8 @@ namespace gui {
     
     class PackageItem {
         friend class Package;
-    private:
+        friend class ObjectFactory;
+    public:
         Package*                        owner_;
         PackageItemType                 type_;
         ObjectType                      objType_;
@@ -52,7 +55,7 @@ namespace gui {
         std::string                     file_;
         int                             width_;
         int                             height_;
-        ByteBuffer*                     rawData_; // 有必要用指针？？？这个后续关注下！
+        ByteBuffer<>                    rawData_; // 有必要用指针？？？这个后续关注下！
 
         std::vector<std::string>*       branches_;
         std::vector<std::string>*       highResolution_;
@@ -77,12 +80,14 @@ namespace gui {
         bool                            translated_;
 
         // bitmap font
-        //BitmapFont*                     bitmapFont_;
+        // BitmapFont*                     bitmapFont_;
 
         // skeleton
         Point2D<float>                  skeletonAnchor_;
 
     public:
+        PackageItem const* getBranch() const;
+        PackageItem* getBranch();
         PackageItem();
         ~PackageItem();
     };

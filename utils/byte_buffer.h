@@ -9,7 +9,38 @@
 
 namespace gui {
 
+    enum class GeneralBlock {
+    };
+
+    enum class PackageBlocks {
+        Dependences = 0,
+        Items = 1,
+        Sprites = 2,
+        HitTestData = 3,
+        StringTable = 4,
+        TextField = 5,
+    };
+
+    enum class ComponentBlocks {
+        Props = 0,
+        Controller = 1,
+        Children = 2,
+        Relations = 3,
+        CustomData = 4,
+        Transitions = 5,
+        Ext, // button, combobox, progressbar, scrollbar, slider
+        ScrollData = 7,
+    };
+
+    enum class ObjectBlocks {
+        Props = 0,
+        Extra = 1,
+        Gears = 2,
+        Relations = 3,
+    };
+
     // 目测序列化FGUI是按小端存储的
+    template<class BlockType = GeneralBlock>
     class ByteBuffer {
     public:
         int                         version;
@@ -21,6 +52,36 @@ namespace gui {
         uint8_t                     ownBuffer_ : 1;
         std::vector<std::string>*   stringTable_;
     public:
+        ByteBuffer() 
+            : ptr_(nullptr)
+            , offset_(0)
+            , length_(0)
+            , position_(0)
+            , ownBuffer_(0)
+            , stringTable_(nullptr)
+        {
+        }
+        ByteBuffer(ByteBuffer const& buffer) {
+            if(ownBuffer_ && ptr_) {
+                delete []ptr_;
+            }
+            memcpy(this, &buffer, sizeof(buffer));
+        }
+        ByteBuffer(ByteBuffer && buffer) {
+            if(ownBuffer_ && ptr_) {
+                delete []ptr_;
+            }
+            memcpy(this, &buffer, sizeof(buffer));
+            memset(&buffer, 0, sizeof(buffer));
+        }
+        ByteBuffer& operator = (ByteBuffer && buffer) {
+            if(ownBuffer_ && ptr_) {
+                delete []ptr_;
+            }
+            memcpy(this, &buffer, sizeof(buffer));
+            memset(&buffer, 0, sizeof(buffer));
+            return *this;
+        }
         ByteBuffer(uint8_t* ptr, int offset, int len)
             : ptr_(ptr)
             , offset_(offset)
@@ -30,7 +91,7 @@ namespace gui {
         {}
 
         ByteBuffer(int len)
-            : ptr_((uint8_t*)malloc(len))
+            : ptr_(new uint8_t[len])
             , offset_(0)
             , length_(ptr_?len:0)
             , position_(0)
@@ -38,8 +99,16 @@ namespace gui {
         {
         }
 
+        ByteBuffer<BlockType> clone() const {
+            auto buff = ByteBuffer<BlockType>(length_);
+            memcpy(buff.ptr_, ptr(), length_);
+            buff.offset_ = 0;
+            buff.stringTable_ = stringTable_;
+            return buff;
+        }
+
         uint8_t* ptr() const {
-            return ptr_;
+            return ptr_ + offset_;
         }
 
         ~ByteBuffer() {
@@ -50,6 +119,10 @@ namespace gui {
 
         int pos() const {
             return position_;
+        }
+
+        int length() const {
+            return length_;
         }
 
         void setPos(int pos) {
@@ -90,14 +163,57 @@ namespace gui {
             return val;
         }
 
+        /**
+         * @brief 
+         * 
+         * @tparam  return a bytebuffer ref
+         * @return ByteBuffer<GeneralBlock> 
+         */
         template<>
-        inline ByteBuffer* read<ByteBuffer*>() {
+        inline ByteBuffer<GeneralBlock> read<ByteBuffer<GeneralBlock>>() {
             int count = read<int>();
-            ByteBuffer* buffer = new ByteBuffer(count);
-            buffer->stringTable_ = this->stringTable_;
-            buffer->version = this->version;
-            memcpy(buffer->ptr(), ptr() + this->position_, count);
+            ByteBuffer<GeneralBlock> buffer(ptr() + position_, count);
+            buffer.stringTable_ = this->stringTable_;
+            buffer.version = this->version;
             return buffer;
+        }
+
+        void updateRefString(std::string const& str) {
+            auto index = this->read<uint16_t>();
+            if(stringTable_->size() > index) {
+                stringTable_->at(index) = str;
+            }
+        }
+
+        void readRefStringArray(std::vector<std::string>& vec, uint32_t count) {
+            for(uint32_t i = 0; i<count; ++i) {
+                vec.push_back(read<csref>());
+            }
+        }
+
+        bool seekToBlock(int indexTablePos, BlockType blockIndex) {
+            auto bak = position_;
+            position_ = indexTablePos;
+            auto blockCount = read<uint8_t>();
+            if((int)blockIndex<blockCount) {
+                bool indexIsInt16 = (read<uint8_t>() == 1); // index is int16_t or int32_t
+                int newPos = 0;
+                if(indexIsInt16) {
+                    // read specified block index value
+                    position_ += sizeof(int16_t) * (int)blockIndex; // locate the position that stores the block's offset
+                    newPos = read<int16_t>();
+                } else {
+                    position_ += sizeof(int32_t) * (int)blockIndex;
+                    newPos = read<int32_t>();
+                }
+                if(newPos>0) {
+                    position_ = indexTablePos + newPos;
+                    return true;
+                }
+            }
+            // restore the state
+            position_ = bak;
+            return false;
         }
 
         inline static std::string EmptyString = "";
@@ -110,12 +226,6 @@ namespace gui {
             }
             return EmptyString;
         }
-
-        // fgui序列化结构可能是存了几份block
-        bool seekToBlock(int indexTablePos, PackageBlockIndex index);
-        // std::string const& readRefString(); // read string index on current location & query the string from `string table` at this index
-        void readRefStringArray(std::vector<std::string>& vec, uint32_t count); // similar as `readRefString`
-        void updateRefString(std::string const& str); // similar as `readRefString`
 
     };
 

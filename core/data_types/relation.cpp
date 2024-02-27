@@ -5,12 +5,11 @@
 namespace gui {
 
     void RelationItem::setTarget(Object* ptr) {
-        ObjectPtr ref = ptr;
-        if(ref != target_) {
+        if(ptr != target_) {
             if(target_) {
                 unregistEventListener((Object*)target_);
             }
-            target_ = ref;
+            target_ = ptr;
             if(ptr) {
                 registEventListener(ptr);
             }

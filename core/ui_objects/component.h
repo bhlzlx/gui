@@ -39,7 +39,10 @@ namespace gui {
         {
         }
 
-        
+        virtual void constructFromResource() override;
+
+        void constructFromResource(std::vector<Object*> objectPool, uint32_t index);
+
         
 
     };

@@ -104,9 +104,12 @@ namespace gui {
     private:
         Handle handle_;
     public:
-        constexpr ObjectHandle(void* ptr = nullptr, RefInfo::deletor dtor = nullptr) 
+        ObjectHandle(void* ptr = nullptr, RefInfo::deletor dtor = nullptr) 
             :handle_(ptr, dtor)
         {
+        }
+        ~ObjectHandle() {
+            handle_.ref_->reset();
         }
         Handle handle() const {
             return handle_;
