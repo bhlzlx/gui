@@ -75,4 +75,8 @@ namespace gui {
         parent.removeChild(*this);
     }
 
+    void setPosition(Point2D<float> const& pos) {
+        return;
+    }
+
 }

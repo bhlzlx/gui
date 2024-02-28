@@ -11,7 +11,7 @@ namespace gui {
     //     return rst;
     // }
 
-    EventContext::EventContext(EventType event, EventDispatcher* sender, void* data)
+    EventContext::EventContext(Value event, EventDispatcher* sender, void* data)
         : event_(event)
         , sender_(sender->getHandle())
         , stopped_(0)
@@ -20,7 +20,7 @@ namespace gui {
         , data_(data)
     {}
 
-    void EventDispatcher::addEventListener(EventType event, EventCallback const& callback, EventTag tag) {
+    void EventDispatcher::addEventListener(Value event, EventCallback const& callback, EventTag tag) {
         if(tag) {
             for(auto &item: callbackItems_) {
                 if(item->event == event && item->tag == tag) {
@@ -38,7 +38,7 @@ namespace gui {
         callbackItems_.push_back(item);
     }
 
-    void EventDispatcher::removeEventListener(EventType event, EventTag tag) {
+    void EventDispatcher::removeEventListener(Value event, EventTag tag) {
         for(auto it = callbackItems_.begin(); it != callbackItems_.end();) {
             auto& itemPtr= *it;
             auto tag = itemPtr->tag;
@@ -54,7 +54,7 @@ namespace gui {
         }
     }
 
-    bool EventDispatcher::hasEventListener(EventType event, EventTag tag) const {
+    bool EventDispatcher::hasEventListener(Value event, EventTag tag) const {
         for(auto iter = callbackItems_.begin(); iter != callbackItems_.end(); ++iter) {
             auto item = *iter;
             if(item->callback) {
@@ -72,11 +72,24 @@ namespace gui {
         return false;
     }
 
-    bool EventDispatcher::dispatchEvent(EventType event, void* data, Value dataValue) {
+    bool EventDispatcher::dispatchEvent(Value event, void* data, Value dataValue) {
         if(!callbackItems_.size()) {
             return false;
         }
         EventContext ctx(event, this, data);
         return true;
+    }
+
+    void EventDispatcher::clearEventListeners() {
+        for(auto iter = callbackItems_.begin(); iter != callbackItems_.end(); ++iter) {
+            auto item = *iter;
+            if(item->dispatching) {
+                item->callback = nullptr;
+                ++iter;
+            } else {
+                delete item;
+                iter = callbackItems_.erase(iter);
+            }
+        }
     }
 }

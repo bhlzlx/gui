@@ -14,6 +14,7 @@
 #include <log/client_log.h>
 //
 #include <core/package_item.h>
+#include <core/ui_objects/object.h>
 
 namespace gui {
 

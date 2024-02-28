@@ -32,4 +32,10 @@ namespace gui {
         Arch,
     };
 
+    enum class OverflowType {
+        Visible,
+        Hidden,
+        Scroll
+    };
+
 }

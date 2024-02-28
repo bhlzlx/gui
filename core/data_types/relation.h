@@ -61,7 +61,7 @@ namespace gui {
         void copyFrom(Relations const& other);
         void onOwnSizeChanged(glm::vec2 size, bool applyPivot);
         bool isEmpty() const;
-        void setup(ByteBuffer<>* buffer, bool parentToChild);
+        void setup(ByteBuffer buffer, bool parentToChild);
         Object* handling() const { return handling_; }
     };
 

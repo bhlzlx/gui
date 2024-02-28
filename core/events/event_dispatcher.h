@@ -10,23 +10,17 @@
 
 namespace gui {
 
-    enum class EventType {
-        Touch,
-        Rollover,
-        Rollout,
-    };
-
     class EventContext {
     private:
-        EventType           event_;
+        Value               event_;
         Handle              sender_;
         uint8_t             stopped_ : 1;
         uint8_t             defaultPrevented_ : 1;
         uint8_t             captureTouch_ : 1;
         Value               data_;
     public:
-        EventContext(EventType event, EventDispatcher* sender, void* data);
-        EventType event() const { return event_; }
+        EventContext(Value event, EventDispatcher* sender, void* data);
+        Value event() const { return event_; }
         Value const& data() const { return data_; }
     };
 
@@ -54,7 +48,7 @@ namespace gui {
     class EventDispatcher {
         struct EventCallbackItem {
             EventCallback   callback;
-            EventType       event;
+            Value           event;
             EventTag        tag;
             int             dispatching;
         };
@@ -65,11 +59,12 @@ namespace gui {
         EventDispatcher()
             : callbackItems_ {}
         {}
-        void addEventListener(EventType event, EventCallback const& callback, EventTag tag = EventTag());
-        void removeEventListener(EventType event, EventTag tag = EventTag());
-        bool hasEventListener(EventType event, EventTag tag = EventTag()) const;
-        bool dispatchEvent(EventType event, void* data, Value dataValue);
-        bool bubbleEvent(EventType event, void* data, std::vector<uint8_t> const& buffer);
+        void addEventListener(Value event, EventCallback const& callback, EventTag tag = EventTag());
+        void removeEventListener(Value event, EventTag tag = EventTag());
+        void clearEventListeners();
+        bool hasEventListener(Value event, EventTag tag = EventTag()) const;
+        bool dispatchEvent(Value event, void* data, Value dataValue);
+        bool bubbleEvent(Value event, void* data, std::vector<uint8_t> const& buffer);
         // template<class T>
         // requires std::sub
         Handle getHandle() {

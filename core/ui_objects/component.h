@@ -6,6 +6,7 @@
 #include "../display_objects/container.h"
 #include "core/declare.h"
 #include "core/display_objects/display_object.h"
+#include "utils/byte_buffer.h"
 
 namespace gui {
 
@@ -15,8 +16,8 @@ namespace gui {
         std::vector<Controller*>    controllers_;
         std::vector<Transition>     transitions_;
         // std::vector<Transition>  这个先跳过去
-        DisplayObject               root_;
-        DisplayObject               scrollPane_;
+        DisplayObject               root_; // default root
+        DisplayObject               container_; // scroll node if need
 
         bool                        buildingDisplayList_;
 
@@ -42,6 +43,12 @@ namespace gui {
         virtual void constructFromResource() override;
 
         void constructFromResource(std::vector<Object*> objectPool, uint32_t index);
+
+        void setupOverflow(OverflowType overflow);
+        void setupScroll(ByteBuffer& buff);
+        void updateClipRect();
+
+        void applyController(Controller* controller);
 
         
 

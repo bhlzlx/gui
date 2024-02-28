@@ -1,5 +1,6 @@
 #pragma once
 #include "../events/event_dispatcher.h"
+#include "core/declare.h"
 #include "entt/src/entt/entity/entity.hpp"
 #include "entt/src/entt/entity/fwd.hpp"
 #include <entt/src/entt/entt.hpp>
@@ -46,6 +47,8 @@ namespace gui {
         void removeChild(DisplayObject child);
         void removeChildAt(uint32_t index);
         void removeFromParent();
+
+        void setPosition(Point2D<float> const& pos);
     public:
         static DisplayObject createRootObject();
         static DisplayObject createDisplayObject();

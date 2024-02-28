@@ -82,4 +82,8 @@ namespace gui {
         data_ = buffer->read<std::string>(); // user data???
     }
 
+    void Object::internalSetParent(Component* comp) {
+        parent_ = comp;
+    }
+
 }

@@ -1,5 +1,6 @@
 #pragma once
 #include "core/data_types/value.h"
+#include "core/display_objects/display_object.h"
 #include "core/ui_objects/object_factory.h"
 #include <cstdint>
 #include <queue>
@@ -27,6 +28,7 @@ namespace gui {
 
     class Object : public EventDispatcher {
         friend class ObjectFactory;
+        friend class Component;
     protected:
         std::string     id_;
         std::string     name_;
@@ -48,15 +50,19 @@ namespace gui {
         uint8_t         touchable_:1;
         uint8_t         grayed_:1;
         uint8_t         finalGrayed_:1;
+        uint8_t         underConstruct_:1;
     private:
         uint8_t         internalVisible_:1;
         uint8_t         handlingController_:1;
         uint8_t         draggable_:1;
         uint8_t         focusable_:1;
         uint8_t         pixelSnapping_:1;
+        Component*      parent_;
+        Relations       relations_;
         SortingOrder    sortingOrder_;
         Group*          group_;
         float           sizePercentInGroup_;
+        DisplayObject   dispobj_;
 
         // user_data_t     data_;
         Value           data_;
@@ -100,8 +106,10 @@ protected:
         virtual void onExit();
         virtual void onControllerChanged(Controller* controller);
 
-        virtual void setupBeforeAdd(ByteBuffer<ObjectBlocks>* buffer, int startPos);
-        virtual void setupAfterAdd(ByteBuffer<ObjectBlocks>* buffer, int startPos);
+        virtual void setupBeforeAdd(ByteBuffer buffer, int startPos = 0);
+        virtual void setupAfterAdd(ByteBuffer buffer, int startPos = 0);
+
+        void internalSetParent(Component* comp);
 
         bool init();
 

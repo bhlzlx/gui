@@ -7,7 +7,7 @@
 
 namespace gui {
 
-    enum class PackageItemType {
+    enum class PackageItemType : uint8_t {
         Image, // 纹理
         MovieClip, // 序列
         Sound, // 音频
@@ -21,7 +21,7 @@ namespace gui {
         DragonBones,
     };
 
-    enum class ObjectType {
+    enum class ObjectType : uint8_t {
         Image,
         MovieClip,
         Swf,
@@ -55,7 +55,7 @@ namespace gui {
         std::string                     file_;
         int                             width_;
         int                             height_;
-        ByteBuffer<>                    rawData_; // 有必要用指针？？？这个后续关注下！
+        ByteBuffer                      rawData_; // 有必要用指针？？？这个后续关注下！
 
         std::vector<std::string>*       branches_;
         std::vector<std::string>*       highResolution_;

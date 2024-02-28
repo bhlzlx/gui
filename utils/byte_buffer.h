@@ -40,7 +40,6 @@ namespace gui {
     };
 
     // 目测序列化FGUI是按小端存储的
-    template<class BlockType = GeneralBlock>
     class ByteBuffer {
     public:
         int                         version;
@@ -82,9 +81,9 @@ namespace gui {
             memset(&buffer, 0, sizeof(buffer));
             return *this;
         }
-        ByteBuffer(uint8_t* ptr, int offset, int len)
+        ByteBuffer(uint8_t* ptr, int len)
             : ptr_(ptr)
-            , offset_(offset)
+            , offset_(0)
             , length_(len)
             , position_(0)
             , ownBuffer_(0)
@@ -99,8 +98,8 @@ namespace gui {
         {
         }
 
-        ByteBuffer<BlockType> clone() const {
-            auto buff = ByteBuffer<BlockType>(length_);
+        ByteBuffer clone() const {
+            auto buff = ByteBuffer(length_);
             memcpy(buff.ptr_, ptr(), length_);
             buff.offset_ = 0;
             buff.stringTable_ = stringTable_;
@@ -151,6 +150,12 @@ namespace gui {
             return val;
         }
 
+        template<class T>
+        requires std::is_enum_v<T>
+        inline T read() {
+            return (T)read<std::underlying_type<T>>();
+        }
+
         template<>
         inline std::string read<std::string>() {
             std::string val;
@@ -170,11 +175,12 @@ namespace gui {
          * @return ByteBuffer<GeneralBlock> 
          */
         template<>
-        inline ByteBuffer<GeneralBlock> read<ByteBuffer<GeneralBlock>>() {
+        inline ByteBuffer read<ByteBuffer>() {
             int count = read<int>();
-            ByteBuffer<GeneralBlock> buffer(ptr() + position_, count);
+            ByteBuffer buffer(ptr() + position_, count);
             buffer.stringTable_ = this->stringTable_;
             buffer.version = this->version;
+            position_ += count;
             return buffer;
         }
 
@@ -190,7 +196,8 @@ namespace gui {
                 vec.push_back(read<csref>());
             }
         }
-
+        template<class BlockType>
+        requires std::is_enum_v<BlockType>
         bool seekToBlock(int indexTablePos, BlockType blockIndex) {
             auto bak = position_;
             position_ = indexTablePos;
@@ -226,6 +233,8 @@ namespace gui {
             }
             return EmptyString;
         }
+
+        ByteBuffer readShortBuffer();
 
     };
 

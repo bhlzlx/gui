@@ -160,7 +160,6 @@ namespace gui {
     class InputHandler;
     class ObjectDestroyManager;
     class ObjectTable;
-    template<class T>
     class ByteBuffer;
     class InterpoPath;
 

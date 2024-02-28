@@ -4,13 +4,13 @@ namespace gui {
 
     static std::string EmptyString = "";
 
-    // std::string const& ByteBuffer::readRefString() {
-    //     auto index = this->read<uint16_t>();
-    //     if(stringTable_->size() > index) {
-    //         return stringTable_->at(index);
-    //     }
-    //     return EmptyString;
-    // }
-
+    ByteBuffer ByteBuffer::readShortBuffer() {
+        int count = read<uint16_t>();
+        ByteBuffer buffer(ptr() + position_, count);
+        buffer.stringTable_ = this->stringTable_;
+        buffer.version = this->version;
+        position_ += count;
+        return buffer;
+    }
 
 }
