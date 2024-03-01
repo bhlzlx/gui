@@ -1,6 +1,7 @@
 #pragma once
 
 #include "core/data_types/ui_types.h"
+
 namespace gui {
 
     class FillMesh {

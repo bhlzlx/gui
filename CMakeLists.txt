@@ -13,10 +13,6 @@ PRIVATE
     core/data_types/interpolatable_path.cpp
     core/data_types/tweener.cpp
     core/data_types/tween_types.cpp
-    core/display_objects/display_object.cpp
-    core/display_objects/container.cpp
-    core/ui_objects/component.cpp
-    core/ui_objects/object.cpp
     core/events/event_dispatcher.cpp
     core/events/input_event.cpp
     core/input_handler.cpp
@@ -26,6 +22,13 @@ PRIVATE
     core/hit_test.cpp
     utils/byte_buffer.cpp
     utils/toolset.cpp
+    #
+    core/display_objects/display_object.cpp
+    core/display_objects/container.cpp
+    # ui
+    core/ui/component.cpp
+    core/ui/object.cpp
+    core/ui/image.cpp
 )
 
 target_link_libraries(gui
@@ -38,6 +41,7 @@ PRIVATE
 target_include_directories(gui
 PRIVATE
     .
+    ${CMAKE_SOURCE_DIR}/thirdpart/glm
 )
 
 target_compile_definitions(gui

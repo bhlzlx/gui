@@ -1,7 +1,7 @@
 #pragma  once
 
-#include "core/data_types/handle.h"
-#include "core/display_objects/display_object.h"
+#include "../data_types/handle.h"
+#include "display_object.h"
 #include <vector>
 
 #include <entt/src/entt/entt.hpp>
