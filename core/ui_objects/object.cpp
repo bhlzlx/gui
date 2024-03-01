@@ -1,6 +1,8 @@
 #include "object.h"
 #include "core/data_types/transition.h"
 #include "core/declare.h"
+#include "core/display_objects/display_object.h"
+#include "utils/byte_buffer.h"
 #include <cassert>
 #include <core/gui_context.h>
 
@@ -10,11 +12,11 @@ namespace gui {
         delete this;
     }
 
-
     Object::~Object() {}
 
-    void Object::setupBeforeAdd(ByteBuffer* buffer, int startPos) {
-        buffer->seekToBlock(startPos, PackageBlockIndex::Dependences);
+    void Object::setupBeforeAdd(ByteBuffer& bufRef, int startPos) {
+        auto buffer = &bufRef;
+        buffer->seekToBlock(startPos, ObjectBlocks::Props);
         buffer->skip(5);
         id_ = buffer->read<std::string>();
         name_ = buffer->read<std::string>();
@@ -84,6 +86,16 @@ namespace gui {
 
     void Object::internalSetParent(Component* comp) {
         parent_ = comp;
+    }
+
+    void Object::handleControllerChanged(Controller* controller) {
+        handlingController_ = true; {
+        }
+        handlingController_ = false;
+    }
+
+    void Object::createDisplayObject() {
+        dispobj_ = DisplayObject::createDisplayObject();
     }
 
 }

@@ -7,8 +7,6 @@ namespace gui {
 
     entt::registry reg;
 
-    DisplayObject NullDisplayObject;
-
     DisplayObject DisplayObject::createDisplayObject() {
         auto entity = reg.create();
         return DisplayObject(entity);

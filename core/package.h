@@ -18,7 +18,7 @@ namespace gui {
         std::string                                                 id_;
         std::string                                                 name_;
         std::string                                                 assetPath_;
-        ByteBuffer<PackageBlocks>                                   packageBuffer_;
+        ByteBuffer                                                  packageBuffer_;
         std::vector<PackageItem*>                                   packageItems_;
 
         std::unordered_map<std::string, PackageItem*>               itemsByID_;
@@ -43,7 +43,7 @@ namespace gui {
     public:
         Package();
         ~Package();
-        bool loadFromBuffer(ByteBuffer<PackageBlocks>* buffer, std::string_view assetPath);
+        bool loadFromBuffer(ByteBuffer& buffer, std::string_view assetPath);
 
         Object* createObject(std::string const& resName);
 

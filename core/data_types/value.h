@@ -4,20 +4,9 @@
 #include <string>
 #include <concepts>
 #include <type_traits>
+#include <core/events/ui_events.h>
 
 namespace gui {
-
-    enum class TouchEvent {
-        TouchBegin,
-        TouchMove,
-        TouchEnd,
-    };
-
-    enum class MouseEvent {
-        MouseDown,
-        MouseMove,
-        MouseUp,
-    };
 
     enum class ValueType {
         Int,

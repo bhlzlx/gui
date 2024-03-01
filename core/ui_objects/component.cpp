@@ -1,6 +1,8 @@
 #include "component.h"
+#include "core/data_types/transition.h"
 #include "core/data_types/ui_types.h"
 #include "core/declare.h"
+#include "core/events/event_dispatcher.h"
 #include "core/package.h"
 #include "core/package_item.h"
 #include "core/ui_objects/object_factory.h"
@@ -74,7 +76,7 @@ namespace gui {
         int childCount = buff.read<uint16_t>();
         for(int i = 0; i<childCount; ++i) {
             auto childData = buff.readShortBuffer();
-            childData.seekToBlock<ObjectBlocks>(0, ObjectBlocks::Props);
+            childData.seekToBlock(0, ObjectBlocks::Props);
             auto type = childData.read<ObjectType>();
             std::string itemID = buff.read<std::string>();
             std::string pkgID = buff.read<std::string>();
@@ -103,17 +105,17 @@ namespace gui {
             children_.push_back(obj);
         }
         // setup relations
-        buff.seekToBlock<ComponentBlocks>(0, ComponentBlocks::Relations);
+        buff.seekToBlock(0, ComponentBlocks::Relations);
         relations_.setup(buff, true);
         // child relations
-        buff.seekToBlock<ComponentBlocks>(0, ComponentBlocks::Children);
+        buff.seekToBlock(0, ComponentBlocks::Children);
         buff.skip(2);
         for(int i = 0; i<childCount; ++i) {
             ByteBuffer childData = buff.readShortBuffer();
-            childData.seekToBlock<ObjectBlocks>(0, ObjectBlocks::Relations);
+            childData.seekToBlock(0, ObjectBlocks::Relations);
             children_[i]->relations_.setup(childData, false);
         }
-        buff.seekToBlock<ComponentBlocks>(0, ComponentBlocks::Children);
+        buff.seekToBlock(0, ComponentBlocks::Children);
         buff.skip(2);
         for(int i = 0; i < childCount; ++i) {
             ByteBuffer childData = buff.readShortBuffer();
@@ -121,8 +123,53 @@ namespace gui {
             child->setupAfterAdd(childData);
             child->underConstruct_ = false;
         }
-        buff.seekToBlock<ComponentBlocks>(0, ComponentBlocks::CustomData);
-        buff.skip(2);
+        buff.seekToBlock(0, ComponentBlocks::CustomData);
+        buff.skip(2); // maybe the block size
+        auto opaque = buff.read<bool>();
+        int maskID = buff.read<int16_t>();
+        if(maskID != -1) {
+            buff.read<bool>(); // mask 暂时不处理
+        }
+        {
+            auto hitTestID = buff.read<std::string>();
+            int i1 = buff.read<int>(), i2 = buff.read<int>();
+            if(hitTestID.size()) {
+                auto hitItem = contentItem->owner_->itemByID(hitTestID);
+                if(hitItem && hitItem->pixelHitTestData_) {
+                    // root_.hitA
+                }
+            }
+        }
+        if(buff.version >= 5) {
+            std::string soundAddToStage = buff.read<std::string>();
+            std::string soundRemoveFrom = buff.read<std::string>();
+        }
+        buff.seekToBlock(0, ComponentBlocks::Transitions);
+        auto transitionCount = buff.read<int16_t>();
+        for(auto i = 0; i<transitionCount; ++i) {
+            auto transData = buff.readShortBuffer();
+            Transition trans = Transition(this);
+            trans.setup(transData);
+            transitions_.push_back(std::move(trans));
+        }
+        if(transitions_.size()) {
+            std::function<void(EventContext*)> onAddedToStage = std::bind(&Component::onAddedToStage, this, std::placeholders::_1);
+            std::function<void(EventContext*)> onRemoveFromStage = std::bind(&Component::onRemoveFromStage, this, std::placeholders::_1);
+            addEventListener("AddedToStage", onAddedToStage);
+            addEventListener("RemoveFromStage", onRemoveFromStage);
+        }
+        applyAllControllers();
+
+        buildingDisplayList_ = false;
+        underConstruct_ = false;
+
+        buildNativeDisplayList(); //
+        setBoundsChangedFlag();
+
+        if(contentItem->objType_ != ObjectType::Component) { // 是个扩展
+            constructExtension(buff);
+        }
+        constructFromXML();
     }
 
     void Component::setupScroll(ByteBuffer& buff) {
@@ -148,6 +195,59 @@ namespace gui {
             }
             container_.setPosition({margin_.left, margin_.top});
         }
+    }
+
+    void Component::applyController(Controller* controller) {
+        this->applyingController_ = controller; {
+            for(auto child: children_) {
+                child->handleControllerChanged(controller);
+            }
+        }
+        applyingController_ = nullptr;
+        controller->runActions();
+    }
+
+    void Component::applyAllControllers() {
+        int cnt = controllers_.size();
+        for(int i = 0; i<cnt; ++i) {
+            auto controller = controllers_[i];
+            applyController(controller);
+        }
+    }
+
+    void Component::buildNativeDisplayList() {
+        if(!root_) {
+            return;
+        }
+        size_t cnt = children_.size();
+        if(!cnt) {
+            return;
+        }
+        switch(childrenRenderOrder_) {
+        case ChildrenRenderOrder::Ascent: {
+            for(size_t i = 0; i<cnt; ++i) {
+                Object* child = children_[i];
+                if(child->dispobj_ && child->internalVisible_) {
+                    container_.addChild(child->dispobj_);
+                }
+            }
+            break;
+        }
+        case ChildrenRenderOrder::Descent:
+        case ChildrenRenderOrder::Arch:
+            assert(false&&"not impl yet!");
+            break;
+        }
+    }
+
+
+    void Component::createDisplayObject() {
+        root_ = DisplayObject::createDisplayObject();
+    }
+
+    void Component::setBoundsChangedFlag() {
+        // no scrollpane yet
+        return;
     }
 
 }

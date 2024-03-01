@@ -17,7 +17,7 @@ namespace gui {
         float       scale;
         uint8_t*    pixels;
         //
-        void load(ByteBuffer buffer);
+        void load(ByteBuffer& buffer);
         PixelHitTestData() noexcept;
         ~PixelHitTestData();
     };

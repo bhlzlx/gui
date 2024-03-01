@@ -10,7 +10,6 @@ namespace gui {
 
     class Image : public Object {
     private:
-        DisplayObject       dispobj_;
         Color4B             color_;
         FlipType            flip_;
         FillMethod          fillMethod_;
@@ -21,7 +20,6 @@ namespace gui {
     public:
         Image()
             : Object()
-            , dispobj_()
             , color_(0)
             , flip_(FlipType::None)
             , fillMethod_(FillMethod::None)

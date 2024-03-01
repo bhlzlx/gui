@@ -55,28 +55,36 @@ namespace gui {
         std::string                         name_;
         Component*                          owner_;
         std::vector<TransitionItem>         items_;
+        OnTransitionCompleteFn              completeFn_;
+        Tweener::TweenCallback              delayedCallDelegate_;
+        Tweener::TweenCallback              checkAllDelegate_;
+        enum_bits<option_t>                 options_;
         int                                 totalTimes_;
         int                                 totalTasks_;
-        bool                                playing_;
-        bool                                paused_;
+        int                                 autoPlayTime_; 
+
         float                               ownerBaseX_;
         float                               ownerBaseY_;
-        OnTransitionCompleteFn              completeFn_;
-        enum_bits<option_t>                 options_;
-        bool                                reversed_;
         float                               totalDuration_;
-        bool                                autoPlay_;
-        int                                 autoPlayTime_; 
         float                               autoPlayDelay_;
         float                               timeScale_;
-        bool                                ignoreEngineTimeScale_;
         float                               startTime_;
         float                               endTime_;
 
-        Tweener::TweenCallback              delayedCallDelegate_;
-        Tweener::TweenCallback              checkAllDelegate_;
+        bool                                reversed_;
+        bool                                autoPlay_;
+        bool                                playing_;
+        bool                                paused_;
+        bool                                ignoreEngineTimeScale_;
+
     public:
         Transition(Component* owner);
+        Transition(Transition &&trans);
+
+        ~Transition() {
+        }
+
+        void setup(ByteBuffer& buffer);
 
     private:
         void play_();

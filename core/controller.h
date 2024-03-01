@@ -34,6 +34,8 @@ namespace gui {
 
         void setup(ByteBuffer buffer);
 
+        void runActions();
+
         Component* parent() const {
             return parent_;
         }

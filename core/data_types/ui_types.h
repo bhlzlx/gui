@@ -1,5 +1,6 @@
 #pragma once
 
+#include "core/declare.h"
 namespace gui {
 
     struct Margin {
@@ -24,6 +25,37 @@ namespace gui {
 
     enum class FillOrigin {
         None
+    };
+
+    enum class FillOriginHori {
+        Left,
+        Right
+    };
+
+    enum class FillOrginVert {
+        Top,
+        Bottom,
+    };
+
+    enum class FillOrigin90 {
+        TopLeft,
+        TopRight,
+        BottomLeft,
+        BottomRight,
+    };
+
+    enum class FillOrigin180 {
+        Top,
+        Bottom,
+        Left,
+        Right,
+    };
+
+    enum class FillOrigin360 {
+        Top,
+        Bottom,
+        Left,
+        Right,
     };
 
     enum class ChildrenRenderOrder {

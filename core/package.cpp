@@ -32,7 +32,8 @@ namespace gui {
         return false;
     }
 
-    bool Package::loadFromBuffer(ByteBuffer<PackageBlocks>* buffer, std::string_view assetPath) {
+    bool Package::loadFromBuffer(ByteBuffer& bufferRef, std::string_view assetPath) {
+        auto buffer = &bufferRef;
         // magic number, version, bool, id, name,[20 bytes], indexTables
         if(buffer->read<uint32_t>() != 0x46475549) {
             return false;
@@ -116,11 +117,11 @@ namespace gui {
                 case PackageItemType::MovieClip: {
                     buffer->read<bool>(); // smoothing
                     item->objType_ = ObjectType::MovieClip;
-                    item->rawData_ = buffer->read<ByteBuffer<>>().clone();  // a slice of byte buffer
+                    item->rawData_ = buffer->read<ByteBuffer>().clone();  // a slice of byte buffer
                     break;
                 }
                 case PackageItemType::Font: {
-                    item->rawData_ = buffer->read<ByteBuffer<>>().clone();
+                    item->rawData_ = buffer->read<ByteBuffer>().clone();
                     break;
                 }
                 case PackageItemType::Component: {
@@ -130,7 +131,7 @@ namespace gui {
                     } else {
                         item->objType_ = ObjectType::Component;
                     }
-                    item->rawData_ = buffer->read<ByteBuffer<>>().clone();
+                    item->rawData_ = buffer->read<ByteBuffer>().clone();
                     // todo: UIObjectFactory::Re...
                     break;
                 }
@@ -221,7 +222,7 @@ namespace gui {
                     item = iter->second;
                     if(item->type_ == PackageItemType::Image) {
                         item->pixelHitTestData_ = new PixelHitTestData();
-                        item->pixelHitTestData_->load(buffer);
+                        item->pixelHitTestData_->load(*buffer);
                     }
                 }
                 buffer->setPos(nextPos);
@@ -244,12 +245,12 @@ namespace gui {
             COMMLOGE("GUI: package not found [%s]", assetPath.c_str());
             return nullptr;
         }
-        ByteBuffer<PackageBlocks> buff(file->size());
+        ByteBuffer buff(file->size());
         file->read(buff.ptr(), file->size());
         // ready to read, create a package object
         Package* package = new Package();
         package->assetPath_ = assetPath;
-        auto rst = package->loadFromBuffer(&buff, assetPath);
+        auto rst = package->loadFromBuffer(buff, assetPath);
         if(!rst) {
             delete package;
             return nullptr;

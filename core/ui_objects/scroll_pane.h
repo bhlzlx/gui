@@ -10,7 +10,7 @@ namespace gui {
         ScrollPane()
         {}
 
-        void setup(ByteBuffer<ComponentBlocks>& buff);
+        void setup(ByteBuffer const& buff);
     };
 
 }

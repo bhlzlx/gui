@@ -6,6 +6,7 @@
 #include "../display_objects/container.h"
 #include "core/declare.h"
 #include "core/display_objects/display_object.h"
+#include "core/events/event_dispatcher.h"
 #include "utils/byte_buffer.h"
 
 namespace gui {
@@ -24,8 +25,8 @@ namespace gui {
         Margin                      margin_;
 
         bool                        traceBounds_;
-        bool                        boudingChanged_;
-        ChildrenRenderOrder         renderOrder_;
+        bool                        boundsChanged_;
+        ChildrenRenderOrder         childrenRenderOrder_;
         int                         apexIndex_;
         glm::vec2                   alignOffset_;
         glm::vec2                   clipSoftness_;
@@ -41,6 +42,9 @@ namespace gui {
         }
 
         virtual void constructFromResource() override;
+        virtual void createDisplayObject() override;
+        virtual void constructExtension(ByteBuffer& buff) {}
+        virtual void constructFromXML() {};
 
         void constructFromResource(std::vector<Object*> objectPool, uint32_t index);
 
@@ -50,7 +54,15 @@ namespace gui {
 
         void applyController(Controller* controller);
 
-        
+        void onAddedToStage(EventContext* context);
+        void onRemoveFromStage(EventContext* context);
+
+        void buildNativeDisplayList();
+
+        void applyAllControllers();
+
+        void setBoundsChangedFlag();
+
 
     };
 

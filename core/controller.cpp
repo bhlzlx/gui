@@ -19,4 +19,8 @@ namespace gui {
         changing_ = false;
     }
 
+    void Controller::runActions() {
+        return; 
+    }
+
 }

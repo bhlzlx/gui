@@ -37,8 +37,8 @@ namespace gui {
         Size2D<float>   size_;
         Size2D<float>   minSize_;
         Size2D<float>   maxSize_;
-        //
-        // Size2D<float>   rawSize_;
+
+        // std::vector<GearBase>
         PackageItem*    packageItem_;
         Point2D<float>  scale_;
         Point2D<float>  pivot_;
@@ -51,7 +51,7 @@ namespace gui {
         uint8_t         grayed_:1;
         uint8_t         finalGrayed_:1;
         uint8_t         underConstruct_:1;
-    private:
+    protected:
         uint8_t         internalVisible_:1;
         uint8_t         handlingController_:1;
         uint8_t         draggable_:1;
@@ -64,7 +64,6 @@ namespace gui {
         float           sizePercentInGroup_;
         DisplayObject   dispobj_;
 
-        // user_data_t     data_;
         Value           data_;
         //
     public:
@@ -86,6 +85,7 @@ namespace gui {
             , draggable_(0)
             , focusable_(0)
             , pixelSnapping_(0)
+            , relations_(this)
             , sortingOrder_(SortingOrder::Ascent)
             , group_(nullptr)
             , sizePercentInGroup_(1.0f)
@@ -106,8 +106,10 @@ protected:
         virtual void onExit();
         virtual void onControllerChanged(Controller* controller);
 
-        virtual void setupBeforeAdd(ByteBuffer buffer, int startPos = 0);
-        virtual void setupAfterAdd(ByteBuffer buffer, int startPos = 0);
+        virtual void setupBeforeAdd(ByteBuffer& buffer, int startPos = 0);
+        virtual void setupAfterAdd(ByteBuffer& buffer, int startPos = 0);
+
+        virtual void createDisplayObject();
 
         void internalSetParent(Component* comp);
 
@@ -177,6 +179,10 @@ protected:
         bool touchable() const { return touchable_; }
         void setTouchable(bool val) { touchable_ = val; }
 
+        DisplayObject getDisplayObject() const {
+            return dispobj_;
+        }
+
         SortingOrder sortingOrder() const { return sortingOrder_; }
         void setSortingOrder(SortingOrder val) { sortingOrder_ = val; }
 
@@ -194,6 +200,8 @@ protected:
 
         user_data_t data() const { return data_; }
         void setData(user_data_t value) { data_ = value; }
+
+        void handleControllerChanged(Controller* controller);
 
         virtual void constructFromResource() {};
 
